@@ -8,7 +8,7 @@ export default function Home() {
   const [showQuoteForm, setShowQuoteForm] = useState(false);
 
   const handleInputSubmit = (inputData: { address: string; bill: number }) => {
-    setUserInput(inputData);
+    setUserInput(inputData); // Now receiving both address and bill as an object
     setShowQuoteForm(true);
   };
 
@@ -26,7 +26,7 @@ export default function Home() {
         Harness the power of the sun to save money!
       </p>
       <p className="text-base sm:text-lg text-center mb-8 text-foreground-color animate-slideUp">
-        Discover your solar potential in minutes.
+        Discover your solar potential in seconds.
       </p>
 
       <div className="max-w-md mx-auto">

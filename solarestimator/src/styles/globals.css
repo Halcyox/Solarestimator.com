@@ -29,8 +29,8 @@ body {
 
 .container {
   max-width: 90%;
-  padding: 2rem;
-  margin: 2rem auto;
+  padding: 1.2rem;
+  margin: 1rem auto;
   background-color: var(--container-background);
   border-radius: 1rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -220,4 +220,59 @@ button:hover {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
   100% { background-position: 0% 50%; }
+}
+
+/* Style the input field to match the rest of your design */
+input#autocomplete {
+  border: 2px solid #00a852; /* Match your theme color */
+  border-radius: 10px;
+  font-size: 1.1rem;
+  padding: 10px;
+  width: 100%;
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Soft shadow */
+  outline: none;
+}
+
+input#autocomplete:focus {
+  border-color: #00ff7f; /* Match your design on focus */
+}
+
+/* Style the autocomplete suggestions */
+.pac-container {
+  background-color: #1d1f27 !important; /* Dark background to match your design */
+  border-radius: 10px !important;
+  font-family: 'Inter', sans-serif !important; /* Use your site's font */
+  z-index: 1000 !important;
+}
+
+.pac-item {
+  padding: 10px !important;
+  color: white !important; /* White text on dark background */
+}
+
+.pac-item:hover {
+  background-color: #2e3741 !important; /* Slight hover effect */
+}
+
+/* Style the place suggestions text */
+.pac-item-query {
+  font-weight: bold !important;
+  color: #ffbf00 !important; /* Highlight part of the text in your theme color */
+}
+
+/* Input field style */
+input#autocomplete {
+  border-radius: 8px;
+  padding: 12px;
+  border: 1px solid #ffbf00; /* Border color to match the site's theme */
+  font-size: 16px;
+  width: 100%; /* To make sure it aligns well with the container */
+  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16); /* Shadow for a soft effect */
+  font-family: 'Inter', sans-serif; /* Ensure the font matches the rest of the site */
+}
+
+/* When the input is focused */
+input#autocomplete:focus {
+  border-color: #ffbf00; /* Accent color to match your button */
+  outline: none;
 }
