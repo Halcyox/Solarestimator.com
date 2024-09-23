@@ -1,278 +1,231 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+/* Import Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
 
+/* Tailwind CSS Base */
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
+/* Root Variables */
 :root {
-  --foreground-color: #2D3748;
-  --background-color: #F0FFF4;
-  --input-background-color: #FFFFFF;
-  --button-background-color: #F6AD55;
-  --button-color: #FFFFFF;
-  --button-hover-color: #ED8936;
-  --accent-color: #2C7A7B;
-  --container-background: rgba(255, 255, 255, 0.9);
+  --color-primary: #F9A825; /* Solar Yellow */
+  --color-secondary: #0288D1; /* Sky Blue */
+  --color-background: #FFFFFF;
+  --color-text: #212121;
+  --color-accent: #FDD835; /* Lighter Yellow */
+  --font-family-base: 'Roboto', sans-serif;
 }
 
+/* Global Styles */
 body {
-  font-family: 'Montserrat', sans-serif;
-  line-height: 1.6;
-  color: var(--foreground-color);
-  background: linear-gradient(-45deg, #EE7752, #E73C7E, #23A6D5, #23D5AB);
-  background-size: 400% 400%;
-  animation: gradientAnimation 15s ease infinite;
-  min-height: 100vh;
-  padding: 0;
+  font-family: var(--font-family-base);
+  color: var(--color-text);
+  background-color: var(--color-background);
   margin: 0;
+  padding: 0;
+  line-height: 1.5;
 }
 
+/* Container */
 .container {
-  max-width: 90%;
-  padding: 1.2rem;
-  margin: 1rem auto;
-  background-color: var(--container-background);
-  border-radius: 1rem;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  backdrop-filter: blur(10px);
-  transition: all 0.3s ease;
+  max-width: 1200px;
+  padding: 1rem;
+  margin: 0 auto;
 }
 
-.container:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-}
-
-h1, h2, h3 {
-  font-weight: 600;
-  margin-bottom: 1rem;
-  color: var(--accent-color);
+/* Headings */
+h1, h2, h3, h4, h5, h6 {
+  color: var(--color-primary);
+  margin: 0 0 1rem 0;
+  font-weight: 700;
 }
 
 h1 {
-  text-align: center;
-  font-size: 2.5rem; /* Base size for larger screens */
+  font-size: 2rem;
 }
 
-@media (max-width: 768px) {
+@media (min-width: 768px) {
   h1 {
-    font-size: 2rem; /* Smaller size for mobile devices */
+    font-size: 2.5rem;
   }
 }
 
-input, button {
-  display: block;
-  width: 100%;
-  padding: 0.75rem 1rem;
-  margin-top: 0.5rem;
-  border: 1px solid #E2E8F0;
-  border-radius: 0.375rem;
-  font-size: 1rem;
-  transition: all 0.3s ease;
-}
-
-input {
-  background-color: var(--input-background-color);
-  color: var(--foreground-color);
-}
-
-input:focus, input:focus-visible {
-  outline: none;
-  border-color: var(--accent-color);
-  box-shadow: 0 0 0 3px rgba(44, 122, 123, 0.2);
-}
-
+/* Buttons */
 button {
-  background-color: var(--button-background-color);
-  color: var(--button-color);
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  cursor: pointer;
+  background-color: var(--color-primary);
+  color: #fff;
   border: none;
-  position: relative;
-  overflow: hidden;
-}
-
-button::after {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 150%;
-  height: 150%;
-  background: rgba(255, 255, 255, 0.5);
-  opacity: 0;
-  border-radius: 50%;
-  transform: scale(0, 0) translate(-50%, -50%);
-  transform-origin: 50% 50%;
-}
-
-button:hover::after {
-  animation: ripple 0.6s ease-out;
+  border-radius: 0.25rem;
+  padding: 0.75rem 1.5rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
 }
 
 button:hover {
-  background-color: var(--button-hover-color);
-  transform: translateY(-2px);
+  background-color: var(--color-accent);
 }
 
-.navbar, .footer-bar {
+button:focus {
+  outline: 2px solid var(--color-secondary);
+  outline-offset: 2px;
+}
+
+/* Inputs */
+input, select, textarea {
   width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #BDBDBD;
+  border-radius: 0.25rem;
+  font-size: 1rem;
+  margin-bottom: 1rem;
+}
+
+input:focus, select:focus, textarea:focus {
+  border-color: var(--color-secondary);
+  outline: none;
+}
+
+/* Navbar */
+.navbar {
+  background-color: var(--color-background);
+  padding: 1rem;
+  border-bottom: 1px solid #E0E0E0;
+}
+
+.navbar .logo {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-primary);
+}
+
+.navbar .nav-links {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem 1rem;
-  background-color: var(--button-background-color);
-  color: var(--button-color);
+  gap: 1rem;
 }
 
-.navbar .logo, .footer-bar .logo {
-  display: flex;
-  align-items: center;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.navbar .nav-links a {
+  color: var(--color-text);
+  text-decoration: none;
+  font-weight: 500;
 }
 
-.navbar .nav-link {
-  background-color: white;
-  color: var(--button-hover-color);
-  padding: 0.5rem 1rem;
-  border-radius: 1rem;
-  transition: background-color 0.3s ease, transform 0.3s ease;
-  white-space: nowrap;
-  flex-shrink: 0;
+.navbar .nav-links a:hover {
+  color: var(--color-primary);
 }
 
-.navbar .nav-link:hover {
-  background-color: var(--button-hover-color);
-  transform: scale(1.05);
+/* Footer */
+.footer {
+  background-color: var(--color-background);
+  padding: 1rem;
+  border-top: 1px solid #E0E0E0;
+  text-align: center;
+  color: #757575;
+  font-size: 0.875rem;
 }
 
+/* Responsive Navigation */
 @media (max-width: 768px) {
-  .navbar {
+  .navbar .nav-links {
     flex-direction: column;
-    padding: 0.5rem;
+    display: none;
   }
 
-  .navbar .logo {
-    width: 100%;
-    justify-content: center;
-    margin-bottom: 0.5rem;
-    text-align: center;
+  .navbar .nav-links.active {
+    display: flex;
   }
 
-  .navbar .nav-link {
-    width: 100%;
-    text-align: center;
-    margin-left: 0;
-    margin-top: 0.5rem;
-  }
-
-  h1 {
-    font-size: 2rem; /* Adjust font size on mobile */
+  .navbar .menu-toggle {
+    display: block;
+    cursor: pointer;
   }
 }
 
-@media (min-width: 640px) {
-  .container {
-    max-width: 80%;
-  }
+/* Accessibility Focus States */
+a:focus, button:focus, input:focus {
+  outline: 2px dashed var(--color-secondary);
+  outline-offset: 2px;
 }
 
-@media (min-width: 1024px) {
-  .container {
-    max-width: 70%;
-  }
+/* Main container styling */
+.savings-calculator {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --foreground-color: #F7FAFC;
-    --background-color: #1A202C;
-    --input-background-color: #2D3748;
-    --button-background-color: #F6AD55;
-    --button-hover-color: #ED8936;
-    --accent-color: #4FD1C5;
-    --container-background: rgba(45, 55, 72, 0.9);
-  }
-
-  body {
-    background: linear-gradient(-45deg, #1A202C, #2D3748, #1A202C, #2D3748);
-    background-size: 400% 400%;
-    animation: gradientAnimation 15s ease infinite;
-  }
+/* Center align headings */
+.savings-calculator h3, .savings-calculator h4 {
+  text-align: center;
+  margin-bottom: 1rem;
 }
 
-@keyframes ripple {
-  0% {
-    transform: scale(0, 0);
-    opacity: 1;
-  }
-  100% {
-    transform: scale(1, 1);
-    opacity: 0;
-  }
-}
-
-@keyframes gradientAnimation {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* Style the input field to match the rest of your design */
-input#autocomplete {
-  border: 2px solid #00a852; /* Match your theme color */
-  border-radius: 10px;
+/* Savings information styling */
+.savings-calculator p {
+  text-align: center;
   font-size: 1.1rem;
-  padding: 10px;
+  margin-bottom: 1.5rem;
+}
+
+/* Content container to hold chart and inputs */
+.savings-calculator .content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Chart container styling */
+.chart-container {
+  flex: 1;
+}
+
+/* Inputs container styling */
+.inputs {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Input labels styling */
+.inputs label {
+  display: flex;
+  flex-direction: column;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+/* Range input styling */
+.inputs input[type="range"] {
+  -webkit-appearance: none;
   width: 100%;
-  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1); /* Soft shadow */
+  height: 8px;
+  background: #ddd;
+  border-radius: 5px;
   outline: none;
+  margin-top: 0.5rem;
 }
 
-input#autocomplete:focus {
-  border-color: #00ff7f; /* Match your design on focus */
+.inputs input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 20px;
+  height: 20px;
+  background: #F9A825; /* Solar Yellow */
+  border-radius: 50%;
+  cursor: pointer;
 }
 
-/* Style the autocomplete suggestions */
-.pac-container {
-  background-color: #1d1f27 !important; /* Dark background to match your design */
-  border-radius: 10px !important;
-  font-family: 'Inter', sans-serif !important; /* Use your site's font */
-  z-index: 1000 !important;
+.inputs input[type="range"]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  background: #F9A825;
+  border-radius: 50%;
+  cursor: pointer;
 }
 
-.pac-item {
-  padding: 10px !important;
-  color: white !important; /* White text on dark background */
-}
-
-.pac-item:hover {
-  background-color: #2e3741 !important; /* Slight hover effect */
-}
-
-/* Style the place suggestions text */
-.pac-item-query {
-  font-weight: bold !important;
-  color: #ffbf00 !important; /* Highlight part of the text in your theme color */
-}
-
-/* Input field style */
-input#autocomplete {
-  border-radius: 8px;
-  padding: 12px;
-  border: 1px solid #ffbf00; /* Border color to match the site's theme */
-  font-size: 16px;
-  width: 100%; /* To make sure it aligns well with the container */
-  box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.16); /* Shadow for a soft effect */
-  font-family: 'Inter', sans-serif; /* Ensure the font matches the rest of the site */
-}
-
-/* When the input is focused */
-input#autocomplete:focus {
-  border-color: #ffbf00; /* Accent color to match your button */
-  outline: none;
+/* Responsive layout adjustments */
+@media (min-width: 768px) {
+  .savings-calculator .content {
+    flex-direction: row;
+  }
 }
