@@ -72,6 +72,7 @@ API Integration:
     - [ ] Get the API to be queried using an address
         - [ ] Bug Fix: 500 Internal Server Error from querying API
         - [ ] Successfully testing out through their web and documentation, to try to get it to run properly locally and with Oauth
+            - [ ] Looks like it needs lat/long instead of address, so we need to geocode it using the Google Geocoding API.
  - [ ] Integrate map viewer for sunroof layer data
  - [ ] Have interactive dashboard for the energy savings + calculator that runs in real-time on the web
 
@@ -82,6 +83,9 @@ Marketing Method:
  - [ ] Identify best tools for outreach + email marketing + CRM
     - [ ] Possibly use the multi-agents prototype for this
  - [ ] Automatic reachout
+ - [ ] Scrape forums to find people asking questions about Solar, and then give a link to us.
+ - [] This tool right now is for residential properties, but in the future it could be for commercial properties.
+
 
 TODO Secondary:
  - [ ] Integrate a language model that can search the web to analyze any savings you may be able to get (using OpenAI Agents) into the interface, so you can find solar savings with natural language.
@@ -115,6 +119,26 @@ List of other sites:
         - Step 3: We generate an online cost and savings estimate
         - Step 4: You choose how many solar companies send you an exact price by email or text
 + NREL PVWatts Calculator
+
+## Priority Tasks and Notes 9/17/24
+
+## Visualization of panels placed properly + not buggy, with accurate solver
+## Placing a visual dashboard that's beautiful that somebody would look.
+## Give the user of the tool through email a PDF that details their energy estimates as well for the response to people's quote requests.
+## On the other side, integrate the system we are creating with the Aurora 1, it would be the most advanced API to use for this project.
+## Aurora estimates have the most accurate estimates.
+
+## Ultimately it should function powerfully as a lead-gen platform for the solar business. But also,
+## There should be an educational aspect to the site with the comparator.
+## Remember the idea for the comparator is that there is an ownership model, do you want to won the system, or lease PPA the system. We will show the differences, so we want to show the pros and cons for each. And with the purchase, there is the cash purchase and the financial products. There are a host of financial products, but giving them an idea of what the savings will be with all of these. But the estimation should deal with the cash deal. Let the customer decide if it's going to be cash or the financial instrument. The best way to do it is to just display the prices of all of them, but they are all rooted to the cash price. The cash price should be established first, and then the other prices will be calculated and displayed. At the bottom of the pros and cons there will be a button saying find installer or learn more, maybe both of those buttons. One could be white and the other could be colored.
+
+## For the aesthetic, iterate on it based on different possible aesthetic ideas. When I come across interesting sites compile it into an interesting sites list.
+
+## Jack will send some examples of costs and how they work in this industry. He will send the different pictures of the interfaces.
+
+## But really the design and cross-pollination of these different APIs in a way that doesn't look buggy.
+## The Design should be the most important part.
+## Also how will it find its way in front of people's eyes.
 
 ## API's
 
