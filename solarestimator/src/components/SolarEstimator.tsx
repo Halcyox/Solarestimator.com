@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { fetchSolarData } from './apiHelper';
 import RoofVisualization from './RoofVisualization';
 import SavingsCalculator from './SavingsCalculator';
 import EnvironmentalImpact from './EnvironmentalImpact';
@@ -22,12 +23,10 @@ export const SolarEstimator = ({ address, bill }: SolarEstimatorProps): JSX.Elem
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchSolarData = async () => {
+    const fetchAndSetSolarData = async () => {
       try {
-        const response = await fetch(`/api/sunroof?address=${encodeURIComponent(address)}`);
-        console.log("here's what we got",response)
-        if (!response.ok) throw new Error('Failed to fetch solar data');
-        const data = await response.json();
+        setLoading(true);
+        const data = await fetchSolarData(address);
         setSolarData(data);
       } catch (err) {
         setError('Error fetching solar data. Please try again.');
@@ -36,7 +35,7 @@ export const SolarEstimator = ({ address, bill }: SolarEstimatorProps): JSX.Elem
       }
     };
 
-    fetchSolarData();
+    fetchAndSetSolarData();
   }, [address]);
 
   if (loading) return <div>Loading solar data...</div>;

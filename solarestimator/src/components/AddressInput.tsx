@@ -10,11 +10,19 @@ export const AddressInput = ({ onSubmit }: AddressInputProps): JSX.Element => {
   const [selectedFromAutocomplete, setSelectedFromAutocomplete] = useState<boolean>(true);
   const inputRef = useRef<HTMLInputElement | null>(null);
 
+  // Get the Google Maps API key from the environment variables
+  const googleApiKey = process.env.NEXT_PUBLIC_GOOGLE_GEOCODE_API_KEY;
+
   // Initialize Google Places Autocomplete
   useEffect(() => {
     const loadGoogleMapsScript = () => {
+      if (!googleApiKey) {
+        console.error('Google API key is missing. Please add it to the .env.local file.');
+        return;
+      }
+
       const script = document.createElement('script');
-      script.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyCAPPDpM4I6phkrMU-4xsF9GKE7W-_B1T4&libraries=places`;
+      script.src = `https://maps.googleapis.com/maps/api/js?key=${googleApiKey}&libraries=places`;
       script.async = true;
       script.defer = true;
       script.onload = () => {
@@ -39,7 +47,7 @@ export const AddressInput = ({ onSubmit }: AddressInputProps): JSX.Element => {
     if (!window.google) {
       loadGoogleMapsScript();
     }
-  }, []);
+  }, [googleApiKey]); // Ensure this effect runs when the API key changes
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
