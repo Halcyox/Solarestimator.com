@@ -1,12 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+    output: 'export', // Use static export mode
     eslint: {
-      // Ignoring ESLint during builds
-      ignoreDuringBuilds: true,
+      ignoreDuringBuilds: true, // Optional: Ignore linting errors
     },
     typescript: {
-      // Ignoring TypeScript errors during builds
-      ignoreBuildErrors: true,
+      ignoreBuildErrors: true, // Optional: Ignore TypeScript errors
     },
   };
   
