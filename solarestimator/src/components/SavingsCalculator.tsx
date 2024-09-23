@@ -1,8 +1,27 @@
 import React, { useState } from 'react';
-import { Line } from 'react-chartjs-2';
-import { Chart as ChartJS, CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend } from 'chart.js';
+import { Line, Bar } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend,
+} from 'chart.js';
 
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend);
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  BarElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 interface SavingsCalculatorProps {
   solarData: {
@@ -11,85 +30,110 @@ interface SavingsCalculatorProps {
     maxSunshineHoursPerYear: number;
     carbonOffsetFactorKgPerMwh: number;
   };
-  bill: number; // User's monthly electricity bill
+  bill: number;
 }
 
 const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ solarData, bill }) => {
-  const [numberOfPanels, setNumberOfPanels] = useState(solarData.maxArrayPanelsCount);
-  const [shadingFactor, setShadingFactor] = useState(0.9); // 90% efficiency due to shading
-  const [tiltFactor, setTiltFactor] = useState(0.9); // 90% efficiency due to tilt/orientation
-  const [financingOption, setFinancingOption] = useState('cash'); // Options: 'cash', 'lease', 'loan'
+  // State variables
+  const [numberOfPanels, setNumberOfPanels] = useState(Math.min(solarData.maxArrayPanelsCount, 20));
+  const [shadingFactor, setShadingFactor] = useState(0.9); // Default 90% efficiency
+  const [tiltFactor, setTiltFactor] = useState(0.9); // Default 90% efficiency
+  const [financingOption, setFinancingOption] = useState('cash');
+  const [numberOfYears, setNumberOfYears] = useState(20); // Default 20 years
 
-  const averagePanelOutputKw = 0.3; // Average panel output in kW (300 watts)
-  const electricityCostPerKwh = 0.12; // Average electricity cost per kWh
-  const solarEfficiency = 0.85 * shadingFactor * tiltFactor; // Efficiency factoring in losses
+  // Constants
+  const averagePanelOutputKw = 0.3; // 300 watts
+  const electricityCostPerKwh = 0.12; // $0.12 per kWh
+  const installationCostPerKw = 2500; // $2500 per kW
+  const interestRate = 0.04; // 4% interest rate
+  const leaseCostPerYear = 500; // $500 per year
+  const loanTermYears = 10; // 10-year loan
 
-  // Cost factors
-  const installationCostPerKw = 2500; // Average installation cost per kW of solar power
-  const interestRate = 0.04; // 4% loan interest rate
-  const leaseCostPerYear = 500; // Annual cost for leasing option
-  const loanTermYears = 10; // Loan period for financed system
+  // Adjusted variables
+  const maxPanels = Math.min(solarData.maxArrayPanelsCount, 50); // Max 50 panels
 
-  // Calculate total energy production potential in kWh per year
+  // Calculations
+  const systemSizeKw = numberOfPanels * averagePanelOutputKw;
+  const systemCost = systemSizeKw * installationCostPerKw;
+
   const totalEnergyProductionPerYearKwh =
-    numberOfPanels * averagePanelOutputKw * solarData.maxSunshineHoursPerYear * solarEfficiency;
+    systemSizeKw * solarData.maxSunshineHoursPerYear * shadingFactor * tiltFactor;
 
-  // Calculate the potential savings per year based on energy production
   const yearlySavings = totalEnergyProductionPerYearKwh * electricityCostPerKwh;
 
-  // Calculate monthly savings
-  const monthlySavings = yearlySavings / 12;
-
-  // Calculate the percentage of the bill offset by solar energy
-  const percentageBillOffset = (monthlySavings / bill) * 100;
-
-  // Calculate the cost of the system
-  const systemCost = numberOfPanels * averagePanelOutputKw * installationCostPerKw;
-
-  // Calculate payback period (in years) for cash purchase
-  const paybackPeriodCash = systemCost / yearlySavings;
-
-  // Loan financing calculations
+  // Financing calculations
   const monthlyLoanPayment =
-    (systemCost * interestRate) / (1 - Math.pow(1 + interestRate, -loanTermYears * 12));
+    (systemCost * (interestRate / 12)) /
+    (1 - Math.pow(1 + interestRate / 12, -loanTermYears * 12));
 
-  // Determine total cost and payback period based on financing option
   let totalCost: number;
   let paybackPeriod: number;
 
   if (financingOption === 'cash') {
     totalCost = systemCost;
-    paybackPeriod = paybackPeriodCash;
+    paybackPeriod = systemCost / yearlySavings;
   } else if (financingOption === 'loan') {
     totalCost = monthlyLoanPayment * loanTermYears * 12;
     paybackPeriod = totalCost / yearlySavings;
   } else {
-    totalCost = leaseCostPerYear * loanTermYears;
+    totalCost = leaseCostPerYear * numberOfYears;
     paybackPeriod = totalCost / yearlySavings;
   }
 
-  // Chart Data (Comparison of savings vs costs over 20 years)
-  const years = Array.from({ length: 20 }, (_, i) => i + 1);
-  const chartData = {
+  // Environmental Impact Calculations
+  const kgCO2PerKwh = 0.475;
+  const totalCO2OffsetKg = totalEnergyProductionPerYearKwh * kgCO2PerKwh;
+  const kgCO2OffsetPerTree = 22;
+  const treesSaved = totalCO2OffsetKg / kgCO2OffsetPerTree;
+
+  // Chart Data
+  const years = Array.from({ length: numberOfYears }, (_, i) => i + 1);
+  const cumulativeSavings = years.map((year) => yearlySavings * year);
+  const cumulativeCosts = years.map((year) =>
+    financingOption === 'cash'
+      ? Math.min(systemCost, yearlySavings * year)
+      : financingOption === 'loan'
+      ? Math.min(totalCost, monthlyLoanPayment * 12 * year)
+      : leaseCostPerYear * year
+  );
+
+  const lineChartData = {
     labels: years.map((year) => `Year ${year}`),
     datasets: [
       {
         label: 'Cumulative Savings ($)',
-        data: years.map((year) => yearlySavings * year),
+        data: cumulativeSavings,
         borderColor: 'rgb(75, 192, 192)',
         tension: 0.3,
+        fill: false,
       },
       {
         label: 'Cumulative Costs ($)',
-        data: years.map((year) =>
-          financingOption === 'cash'
-            ? Math.min(systemCost, yearlySavings * year)
-            : financingOption === 'loan'
-            ? Math.min(totalCost, monthlyLoanPayment * 12 * year)
-            : Math.min(leaseCostPerYear * year, yearlySavings * year)
-        ),
+        data: cumulativeCosts,
         borderColor: 'rgb(255, 99, 132)',
         tension: 0.3,
+        fill: false,
+      },
+    ],
+  };
+
+  const barChartData = {
+    labels: ['Annual Savings', 'Total Cost', 'Payback Period (Years)', 'CO₂ Offset (kg/year)'],
+    datasets: [
+      {
+        label: 'Summary',
+        data: [
+          yearlySavings,
+          totalCost,
+          paybackPeriod,
+          totalCO2OffsetKg,
+        ],
+        backgroundColor: [
+          'rgba(54, 162, 235, 0.6)',
+          'rgba(255, 99, 132, 0.6)',
+          'rgba(255, 206, 86, 0.6)',
+          'rgba(75, 192, 192, 0.6)',
+        ],
       },
     ],
   };
@@ -98,10 +142,14 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ solarData, bill }
     <div className="savings-calculator">
       <h3>Estimated Annual Savings</h3>
       <p>
-        <strong>${yearlySavings.toFixed(2)} per year</strong> ({monthlySavings.toFixed(2)} per month)
+        <strong>${yearlySavings.toFixed(2)} per year</strong> (
+        ${(yearlySavings / 12).toFixed(2)} per month)
       </p>
 
-      <h4>Your solar system could offset about {percentageBillOffset.toFixed(2)}% of your monthly electric bill.</h4>
+      <h4>
+        Your solar system could offset about{' '}
+        {((yearlySavings / (bill * 12)) * 100).toFixed(2)}% of your annual electric bill.
+      </h4>
 
       <p>
         Based on your selected financing option, the total cost of the system is estimated at{' '}
@@ -110,17 +158,21 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ solarData, bill }
       </p>
 
       <div className="inputs">
-        <label>
+        <label
+          title="Adjust the number of solar panels. Typical residential systems have between 10 and 20 panels."
+        >
           Number of Panels: {numberOfPanels}
           <input
             type="range"
-            min="0"
-            max={solarData.maxArrayPanelsCount}
+            min="1"
+            max={maxPanels}
             value={numberOfPanels}
             onChange={(e) => setNumberOfPanels(Number(e.target.value))}
           />
         </label>
-        <label>
+        <label
+          title="Adjust for shading impact. A lower value means more shading and less efficiency."
+        >
           Shading Factor: {(shadingFactor * 100).toFixed(0)}%
           <input
             type="range"
@@ -131,7 +183,9 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ solarData, bill }
             onChange={(e) => setShadingFactor(Number(e.target.value))}
           />
         </label>
-        <label>
+        <label
+          title="Adjust for tilt and orientation impact. Optimal tilt/orientation gives 100% efficiency."
+        >
           Tilt Factor: {(tiltFactor * 100).toFixed(0)}%
           <input
             type="range"
@@ -142,14 +196,21 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ solarData, bill }
             onChange={(e) => setTiltFactor(Number(e.target.value))}
           />
         </label>
+        <label title="Select the number of years over which to calculate savings.">
+          Number of Years: {numberOfYears}
+          <input
+            type="range"
+            min="1"
+            max="30"
+            value={numberOfYears}
+            onChange={(e) => setNumberOfYears(Number(e.target.value))}
+          />
+        </label>
 
         <div>
-          <label>
+          <label title="Choose your financing option.">
             Financing Option:
-            <select
-              value={financingOption}
-              onChange={(e) => setFinancingOption(e.target.value)}
-            >
+            <select value={financingOption} onChange={(e) => setFinancingOption(e.target.value)}>
               <option value="cash">Cash Purchase</option>
               <option value="loan">Loan Financing</option>
               <option value="lease">Leasing</option>
@@ -158,8 +219,57 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({ solarData, bill }
         </div>
       </div>
 
+      {/* Line Chart */}
       <div className="chart-container">
-        <Line data={chartData} options={{ responsive: true, plugins: { legend: { position: 'top' } } }} />
+        <Line
+          data={lineChartData}
+          options={{
+            responsive: true,
+            plugins: {
+              legend: { position: 'top' },
+              title: { display: true, text: 'Cumulative Savings vs. Costs Over Time' },
+            },
+            scales: {
+              y: {
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: 'Amount ($)',
+                },
+              },
+              x: {
+                title: {
+                  display: true,
+                  text: 'Years',
+                },
+              },
+            },
+          }}
+        />
+      </div>
+
+      {/* Bar Chart */}
+      <div className="chart-container">
+        <Bar
+          data={barChartData}
+          options={{
+            indexAxis: 'y',
+            responsive: true,
+            plugins: {
+              legend: { display: false },
+              title: { display: true, text: 'Summary Statistics' },
+            },
+            scales: {
+              x: {
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: 'Value',
+                },
+              },
+            },
+          }}
+        />
       </div>
     </div>
   );

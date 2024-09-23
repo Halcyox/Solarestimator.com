@@ -19,6 +19,7 @@ interface SolarData {
 
 export const SolarEstimator = ({ address, bill }: SolarEstimatorProps): JSX.Element => {
   const [solarData, setSolarData] = useState<SolarData | null>(null);
+  const [totalEnergyProductionPerYearKwh, setTotalEnergyProductionPerYearKwh] = useState<number | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -28,6 +29,13 @@ export const SolarEstimator = ({ address, bill }: SolarEstimatorProps): JSX.Elem
         setLoading(true);
         const data = await fetchSolarData(address);
         setSolarData(data);
+
+        // Calculate total energy production (realistic calculations based on fetched data)
+        const solarEfficiency = 0.85; // Adjust based on shading, tilt, etc.
+        const averagePanelOutputKw = 0.3; // Average output of 300 watts per panel
+        const totalKwh = data.maxArrayPanelsCount * averagePanelOutputKw * data.maxSunshineHoursPerYear * solarEfficiency;
+
+        setTotalEnergyProductionPerYearKwh(totalKwh);
       } catch (err) {
         setError('Error fetching solar data. Please try again.');
       } finally {
@@ -40,14 +48,16 @@ export const SolarEstimator = ({ address, bill }: SolarEstimatorProps): JSX.Elem
 
   if (loading) return <div>Loading solar data...</div>;
   if (error) return <div>{error}</div>;
-  if (!solarData) return <div>No solar data available</div>;
+  if (!solarData || totalEnergyProductionPerYearKwh === null) return <div>No solar data available</div>;
 
   return (
     <div className="container mt-8 p-6 bg-white rounded-lg shadow-md animate-fadeIn">
       <h2 className="text-2xl font-semibold mb-4 text-center text-accent-color">Your Solar Estimate</h2>
       <RoofVisualization roofSegments={solarData.roofSegmentStats} />
-      <SavingsCalculator solarData={solarData} bill={bill} />
-      <EnvironmentalImpact solarData={solarData} />
+      
+      {/* Pass down totalEnergyProductionPerYearKwh to both the SavingsCalculator and EnvironmentalImpact */}
+      <SavingsCalculator solarData={solarData} bill={bill} totalEnergyProductionPerYearKwh={totalEnergyProductionPerYearKwh} />
+      <EnvironmentalImpact totalEnergyProductionPerYearKwh={totalEnergyProductionPerYearKwh} />
     </div>
   );
 };
