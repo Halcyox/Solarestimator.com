@@ -69,12 +69,12 @@ API Integration:
     - [x] Component for User address input (AddressInput.tsx)
     - [x] Address is identified and is used to call the API (e.g. GET /api/sunroof?address=330%20Brookline%20Ave%2C%20Boston%2C%20MA%2002215%2C%20USA)
  - [ ] Integrate Google Sunroof Solar API, get pricing for an address + other details
-    - [ ] Get the API to be queried using an address
-        - [ ] Bug Fix: 500 Internal Server Error from querying API
-        - [ ] Successfully testing out through their web and documentation, to try to get it to run properly locally and with Oauth
-            - [ ] Looks like it needs lat/long instead of address, so we need to geocode it using the Google Geocoding API.
+    - [x] Get the API to be queried using an address
+        - [x] Bug Fix: 500 Internal Server Error from querying API
+        - [x] Successfully testing out through their web and documentation, to try to get it to run properly locally and on web deployment
+            - [x] Looks like it needs lat/long instead of address, so we need to geocode it using the Google Geocoding API.
  - [ ] Integrate map viewer for sunroof layer data
- - [ ] Have interactive dashboard for the energy savings + calculator that runs in real-time on the web
+ - [x] Have interactive dashboard for the energy savings + calculator that runs in real-time on the web
 
 Marketing Method:
  - [ ] Research and define marketing method for outreach and clickthrough automation
