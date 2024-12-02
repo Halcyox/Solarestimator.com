@@ -28,6 +28,8 @@ export async function fetchSolarData(address: string) {
     }
 
     // Structure the relevant data from Solar API
+    console.log('Raw Solar API Response:', JSON.stringify(solarData, null, 2));
+    
     const structuredData = {
       latitude: lat,  // Add latitude
       longitude: lng, // Add longitude
@@ -35,8 +37,18 @@ export async function fetchSolarData(address: string) {
       maxArrayAreaMeters2: solarData.solarPotential?.maxArrayAreaMeters2,
       maxSunshineHoursPerYear: solarData.solarPotential?.maxSunshineHoursPerYear,
       carbonOffsetFactorKgPerMwh: solarData.solarPotential?.carbonOffsetFactorKgPerMwh,
-      roofSegmentStats: solarData.solarPotential?.roofSegmentStats,
+      roofSegmentStats: solarData.solarPotential?.roofSegmentStats?.map(segment => ({
+        ...segment,
+        bounds: segment.boundingBox ? {
+          n: segment.boundingBox.ne.latitude,
+          s: segment.boundingBox.sw.latitude,
+          e: segment.boundingBox.ne.longitude,
+          w: segment.boundingBox.sw.longitude
+        } : null
+      }))
     };
+
+    console.log('Structured Data:', JSON.stringify(structuredData, null, 2));
 
     return structuredData;
   } catch (error) {
