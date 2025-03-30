@@ -1,40 +1,49 @@
 import React from 'react';
-import { Slider, Typography } from '@mui/material';
+import { Slider, Typography, FormControl } from '@mui/material';
 
+/**
+ * Props interface for the TimelineControl component
+ * @interface TimelineControlProps
+ * @property {number} timelineYears - Current timeline length in years
+ * @property {number} maxYears - Maximum allowed timeline length in years
+ * @property {(years: number) => void} onTimelineChange - Callback when timeline length changes
+ */
 interface TimelineControlProps {
-  years: number;
-  onYearsChange: (value: number) => void;
+  timelineYears: number;
+  maxYears: number;
+  onTimelineChange: (years: number) => void;
 }
 
+/**
+ * TimelineControl component provides a slider interface for adjusting the timeline
+ * length for solar savings calculations. Users can select how many years into the
+ * future they want to project their solar savings.
+ * 
+ * @component
+ * @param {TimelineControlProps} props - Component props
+ * @returns {React.ReactElement} A form control containing a slider for timeline adjustment
+ */
 const TimelineControl: React.FC<TimelineControlProps> = ({
-  years,
-  onYearsChange,
+  timelineYears,
+  maxYears,
+  onTimelineChange,
 }) => {
   return (
-    <div>
-      <Typography variant="h6" gutterBottom>
-        Timeline
+    <FormControl fullWidth margin="normal">
+      <Typography gutterBottom>
+        Timeline Length (Years)
       </Typography>
-      <div>
-        <Typography gutterBottom>
-          Projection Period: {years} years
-        </Typography>
-        <Slider
-          value={years}
-          onChange={(_, value) => onYearsChange(value as number)}
-          min={5}
-          max={30}
-          step={1}
-          marks={[
-            { value: 5, label: '5y' },
-            { value: 10, label: '10y' },
-            { value: 20, label: '20y' },
-            { value: 30, label: '30y' },
-          ]}
-          valueLabelDisplay="auto"
-        />
-      </div>
-    </div>
+      <Slider
+        value={timelineYears}
+        onChange={(_, value) => onTimelineChange(value as number)}
+        min={1}
+        max={maxYears}
+        marks
+        step={1}
+        valueLabelDisplay="auto"
+        aria-label="Timeline length in years"
+      />
+    </FormControl>
   );
 };
 

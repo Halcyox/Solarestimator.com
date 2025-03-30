@@ -15,13 +15,22 @@ import {
   HolidayVillage
 } from '@mui/icons-material';
 
+/**
+ * Props interface for the PropertyDetailsStep component
+ * @interface
+ * @property {Object} data - The form data object containing property details
+ * @property {('single-family'|'multi-family'|'commercial'|'')} data.propertyType - Type of the property
+ * @property {('own'|'rent'|'')} data.ownership - Property ownership status
+ * @property {number|null} data.roofAge - Age of the roof in years
+ * @property {function} onUpdate - Callback function to update the form data
+ */
 interface PropertyDetailsStepProps {
   data: {
     propertyType: 'single-family' | 'multi-family' | 'commercial' | '';
     ownership: 'own' | 'rent' | '';
     roofAge: number | null;
   };
-  onUpdate: (updates: Partial<typeof data>) => void;
+  onUpdate: (updates: Partial<PropertyDetailsStepProps['data']>) => void;
 }
 
 const PropertyDetailsStep: React.FC<PropertyDetailsStepProps> = ({ data, onUpdate }) => {

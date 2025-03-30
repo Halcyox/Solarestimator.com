@@ -2,6 +2,20 @@ import React from 'react';
 import { FormControl, InputLabel, MenuItem, Select, TextField, Typography } from '@mui/material';
 import { FinancingOption } from './types';
 
+/**
+ * Props interface for the FinancialInputs component
+ * @interface FinancialInputsProps
+ * @property {FinancingOption} financingOption - The selected financing option (cash, loan, or lease)
+ * @property {number} loanTerm - The term length of the solar loan in years
+ * @property {number} interestRate - The annual interest rate for the solar loan as a percentage
+ * @property {number} downPayment - The initial down payment amount in dollars
+ * @property {number} incentivePercentage - The percentage of solar incentives available
+ * @property {function} onFinancingOptionChange - Callback function when financing option changes
+ * @property {function} onLoanTermChange - Callback function when loan term changes
+ * @property {function} onInterestRateChange - Callback function when interest rate changes
+ * @property {function} onDownPaymentChange - Callback function when down payment amount changes
+ * @property {function} onIncentivePercentageChange - Callback function when incentive percentage changes
+ */
 interface FinancialInputsProps {
   financingOption: FinancingOption;
   loanTerm: number;
@@ -15,6 +29,20 @@ interface FinancialInputsProps {
   onIncentivePercentageChange: (percentage: number) => void;
 }
 
+/**
+ * FinancialInputs Component
+ * 
+ * A form component that handles the financial aspects of solar installation,
+ * including financing options (cash, loan, or lease), loan terms, interest rates,
+ * down payments, and available solar incentives.
+ * 
+ * The component conditionally renders loan-related fields when the loan financing
+ * option is selected.
+ * 
+ * @component
+ * @param {FinancialInputsProps} props - The component props
+ * @returns {JSX.Element} A form with financial input fields
+ */
 const FinancialInputs: React.FC<FinancialInputsProps> = ({
   financingOption,
   loanTerm,

@@ -38,6 +38,47 @@ function ResultsStep({ data }: ResultsStepProps) {
   const co2Reduction = systemSize * 1.5;
   const treeEquivalent = co2Reduction * 0.0165;
 
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const [submitSuccess, setSubmitSuccess] = React.useState(false);
+  const [submitError, setSubmitError] = React.useState<string | null>(null);
+
+  const handleGetQuote = async () => {
+    setIsSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      const response = await fetch('/api/leads', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: `${data.firstName} ${data.lastName}`,
+          email: data.email,
+          phone: data.phone,
+          address: `${data.address}, ${data.city}, ${data.state} ${data.zipCode}`,
+          estimatedSavings: estimatedSavings,
+          propertyType: data.propertyType,
+          ownership: data.ownership,
+          roofAge: data.roofAge,
+          monthlyBill: data.monthlyBill,
+          utilityProvider: data.utilityProvider
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit request');
+      }
+
+      setSubmitSuccess(true);
+      // Don't reset any other state - keep showing the results
+    } catch (error) {
+      setSubmitError(error instanceof Error ? error.message : 'Failed to submit request');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
@@ -165,22 +206,51 @@ function ResultsStep({ data }: ResultsStepProps) {
       </Grid>
 
       <Box sx={{ mt: 4, textAlign: 'center' }}>
-        <Typography variant="body1" paragraph>
-          Ready to start saving with solar? Our experts will contact you soon with a detailed proposal.
-        </Typography>
-        <Typography variant="body2" color="text.secondary" paragraph>
-          We've sent a copy of this estimate to {data.email}
-        </Typography>
-        <Button
-          variant="contained"
-          size="large"
-          sx={{ mt: 2 }}
-          onClick={() => {
-            console.log('Schedule consultation clicked');
-          }}
-        >
-          Schedule Free Consultation
-        </Button>
+        {!submitSuccess ? (
+          <>
+            <Typography variant="body1" paragraph>
+              Ready to start saving with solar? Get your detailed proposal now!
+            </Typography>
+            <Button
+              variant="contained"
+              color="primary"
+              size="large"
+              onClick={handleGetQuote}
+              disabled={isSubmitting}
+              sx={{ mt: 2 }}
+            >
+              {isSubmitting ? 'Submitting...' : 'Get Your Free Quote'}
+            </Button>
+          </>
+        ) : (
+          <>
+            <Typography variant="body1" paragraph sx={{ color: 'success.main', fontWeight: 'bold' }}>
+              Thank you! We've received your request and will contact you soon.
+            </Typography>
+            <Typography variant="body2" color="text.secondary" paragraph>
+              We've sent a copy of this estimate to {data.email}
+            </Typography>
+            <Button
+              variant="contained"
+              size="large"
+              sx={{ mt: 2 }}
+              onClick={() => {
+                console.log('Schedule consultation clicked');
+              }}
+            >
+              Schedule Free Consultation
+            </Button>
+          </>
+        )}
+        
+        {submitError && (
+          <Typography color="error" sx={{ mt: 2 }}>
+            {submitError}
+          </Typography>
+        )}
+      </Box>
+
+      <Box mt={4} textAlign="center">
       </Box>
     </Box>
   );

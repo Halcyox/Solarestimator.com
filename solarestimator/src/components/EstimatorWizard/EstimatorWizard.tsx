@@ -124,14 +124,21 @@ const EstimatorWizard: React.FC = () => {
       case 2:
         return (
           <PropertyDetailsStep
-            data={formData}
+            data={{
+              propertyType: formData.propertyType,
+              ownership: formData.ownership,
+              roofAge: formData.roofAge
+            }}
             onUpdate={updateFormData}
           />
         );
       case 3:
         return (
           <BillInfoStep
-            data={formData}
+            data={{
+              monthlyBill: formData.monthlyBill,
+              utilityProvider: formData.utilityProvider
+            }}
             onUpdate={updateFormData}
           />
         );

@@ -5,6 +5,17 @@ import {
 } from '@mui/material';
 import { AddressInput } from '../../AddressInput';
 
+/**
+ * Interface defining the data structure for the address step form
+ * @interface AddressStepProps
+ * @property {Object} data - The current address and billing data
+ * @property {string} data.address - Street address
+ * @property {string} data.city - City name
+ * @property {string} data.state - State name
+ * @property {string} data.zipCode - ZIP/Postal code
+ * @property {number|null} data.monthlyBill - Monthly electricity bill amount
+ * @property {function} onUpdate - Callback function to update the form data
+ */
 interface AddressStepProps {
   data: {
     address: string;
@@ -13,10 +24,29 @@ interface AddressStepProps {
     zipCode: string;
     monthlyBill: number | null;
   };
-  onUpdate: (updates: Partial<typeof data>) => void;
+  /**
+   * Callback function to update the form data
+   * @param {Partial<AddressStepProps['data']>} updates - Partial updates to the form data
+   */
+  onUpdate: (updates: Partial<AddressStepProps['data']>) => void;
 }
 
+/**
+ * AddressStep component handles the address collection step in the solar estimator wizard.
+ * It provides an interface for users to input their address and monthly electricity bill.
+ * The component automatically parses full addresses into individual components (street, city, state, zip).
+ * 
+ * @component
+ * @param {AddressStepProps} props - Component properties
+ * @param {Object} props.data - Current address and billing data
+ * @param {function} props.onUpdate - Callback to update form data
+ * @returns {React.ReactElement} A form for collecting address and billing information
+ */
 const AddressStep: React.FC<AddressStepProps> = ({ data, onUpdate }) => {
+  /**
+   * Handles changes to the address input field
+   * @param {{ address: string; bill: number }} inputData - New address and bill data
+   */
   const handleAddressChange = ({ address, bill }: { address: string; bill: number }) => {
     // First try to extract zip code from the end of the address
     const zipMatch = address.match(/\b\d{5}\b/);
@@ -43,16 +73,11 @@ const AddressStep: React.FC<AddressStepProps> = ({ data, onUpdate }) => {
       
       const updates = {
         address: streetAddress || parts[0], // Fallback to first part if no street address
-        city: city,
-        state: state,
-        zipCode: zipCode,
+        city,
+        state,
+        zipCode,
         monthlyBill: bill
       };
-      
-      console.log('Clean address:', cleanAddress);
-      console.log('Parts:', parts);
-      console.log('Updates:', updates);
-      console.log('Zip code found:', zipCode);
       
       onUpdate(updates);
     }
@@ -67,13 +92,13 @@ const AddressStep: React.FC<AddressStepProps> = ({ data, onUpdate }) => {
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
         <AddressInput 
           initialAddress={data.address ? `${data.address}, ${data.city}, ${data.state} ${data.zipCode}` : ''}
-          initialBill={data.monthlyBill || undefined}
+          initialBill={data.monthlyBill ?? undefined}
           onChange={handleAddressChange}
         />
       </Box>
 
       <Typography variant="body2" color="text.secondary" sx={{ mt: 3 }} align="center">
-        We'll use your address to calculate solar potential and available incentives
+        We&apos;ll use your address to calculate solar potential and available incentives
       </Typography>
     </Box>
   );

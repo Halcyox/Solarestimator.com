@@ -2,6 +2,19 @@ import React from 'react';
 import { FormControl, InputLabel, MenuItem, Select, Slider, Typography } from '@mui/material';
 import { InverterType, PanelType, PANEL_TYPES, INVERTER_TYPES } from './types';
 
+/**
+ * Props interface for the SystemConfiguration component
+ * @interface SystemConfigurationProps
+ * @property {number} panelCount - Current number of solar panels in the system
+ * @property {PanelType} panelType - Type of solar panels being used
+ * @property {InverterType} inverterType - Type of inverter in the system
+ * @property {boolean} hasBattery - Whether the system includes battery storage
+ * @property {number} maxPanels - Maximum number of panels allowed in the system
+ * @property {(value: number) => void} onPanelCountChange - Callback when panel count changes
+ * @property {(type: PanelType) => void} onPanelTypeChange - Callback when panel type changes
+ * @property {(type: InverterType) => void} onInverterTypeChange - Callback when inverter type changes
+ * @property {(hasBattery: boolean) => void} onBatteryChange - Callback when battery option changes
+ */
 interface SystemConfigurationProps {
   panelCount: number;
   panelType: PanelType;
@@ -14,6 +27,14 @@ interface SystemConfigurationProps {
   maxPanels: number;
 }
 
+/**
+ * SystemConfiguration component handles the configuration of solar system parameters
+ * including panel count, panel type, inverter type, and battery storage options.
+ * 
+ * @component
+ * @param {SystemConfigurationProps} props - Component props
+ * @returns {React.ReactElement} A form with controls for configuring the solar system
+ */
 const SystemConfiguration: React.FC<SystemConfigurationProps> = ({
   panelCount,
   panelType,
@@ -82,11 +103,11 @@ const SystemConfiguration: React.FC<SystemConfigurationProps> = ({
         <InputLabel>Battery Storage</InputLabel>
         <Select
           value={hasBattery}
-          onChange={(e) => onBatteryChange(e.target.value as boolean)}
+          onChange={(e) => onBatteryChange(e.target.value === 'true')}
           label="Battery Storage"
         >
-          <MenuItem value={false}>No Battery</MenuItem>
-          <MenuItem value={true}>Include Battery</MenuItem>
+          <MenuItem value="true">Include Battery</MenuItem>
+          <MenuItem value="false">No Battery</MenuItem>
         </Select>
       </FormControl>
     </div>

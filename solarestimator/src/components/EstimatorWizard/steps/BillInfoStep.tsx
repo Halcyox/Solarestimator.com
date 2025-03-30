@@ -3,63 +3,79 @@ import {
   Box,
   TextField,
   Typography,
-  Autocomplete,
+  InputAdornment,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel
 } from '@mui/material';
+import { AttachMoney } from '@mui/icons-material';
 
-// This list should be populated with actual utility providers based on the user's location
-const UTILITY_PROVIDERS = [
-  'Pacific Gas & Electric (PG&E)',
-  'Southern California Edison (SCE)',
-  'San Diego Gas & Electric (SDG&E)',
-  'Duke Energy',
-  'Florida Power & Light',
-  'ConEdison',
-  'National Grid',
-  'Other'
-];
-
+/**
+ * Props interface for the BillInfoStep component
+ * @interface
+ * @property {Object} data - The form data object containing user's billing information
+ * @property {number|null} data.monthlyBill - User's average monthly electricity bill
+ * @property {string} data.utilityProvider - User's electricity utility provider
+ * @property {function} onUpdate - Callback function to update the form data
+ */
 interface BillInfoStepProps {
   data: {
+    monthlyBill: number | null;
     utilityProvider: string;
   };
-  onUpdate: (updates: Partial<typeof data>) => void;
+  onUpdate: (updates: Partial<BillInfoStepProps['data']>) => void;
 }
 
+/**
+ * BillInfoStep component that collects user's electricity billing information
+ * This component is part of the solar estimator wizard
+ * 
+ * @component
+ * @param {BillInfoStepProps} props - Component props
+ * @returns {React.ReactElement} A form collecting user's billing information
+ */
 const BillInfoStep: React.FC<BillInfoStepProps> = ({ data, onUpdate }) => {
   return (
     <Box>
       <Typography variant="h5" gutterBottom align="center" sx={{ mb: 3 }}>
-        Your Utility Provider
+        Your Energy Usage
       </Typography>
       
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-        <Box>
-          <Typography variant="subtitle1" gutterBottom>
-            Who is your utility provider?
-          </Typography>
-          <Autocomplete
+        <TextField
+          required
+          fullWidth
+          label="Average Monthly Electric Bill"
+          type="number"
+          value={data.monthlyBill}
+          onChange={(e) => onUpdate({ monthlyBill: Number(e.target.value) })}
+          InputProps={{
+            startAdornment: (
+              <InputAdornment position="start">
+                <AttachMoney />
+              </InputAdornment>
+            ),
+          }}
+        />
+
+        <FormControl fullWidth required>
+          <InputLabel>Utility Provider</InputLabel>
+          <Select
             value={data.utilityProvider}
-            onChange={(event, newValue) => {
-              onUpdate({ utilityProvider: newValue || '' });
-            }}
-            options={UTILITY_PROVIDERS}
-            renderInput={(params) => (
-              <TextField
-                {...params}
-                required
-                placeholder="Select your utility provider"
-                fullWidth
-              />
-            )}
-          />
-          <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
-            We'll use this to calculate rates and available incentives
-          </Typography>
-        </Box>
+            label="Utility Provider"
+            onChange={(e) => onUpdate({ utilityProvider: e.target.value })}
+          >
+            <MenuItem value="pge">PG&amp;E</MenuItem>
+            <MenuItem value="sce">Southern California Edison</MenuItem>
+            <MenuItem value="sdge">San Diego Gas &amp; Electric</MenuItem>
+            <MenuItem value="other">Other</MenuItem>
+          </Select>
+        </FormControl>
       </Box>
 
       <Typography variant="body2" color="text.secondary" sx={{ mt: 3 }} align="center">
-        Your information helps us provide the most accurate solar savings estimate
+        This helps us calculate your potential solar savings
       </Typography>
     </Box>
   );

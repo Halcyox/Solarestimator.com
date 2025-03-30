@@ -9,10 +9,12 @@ import {
   Title,
   Tooltip,
   Legend,
+  ChartOptions
 } from 'chart.js';
 import { ToggleButton, ToggleButtonGroup, Box, Typography } from '@mui/material';
 import { AttachMoney, Timeline } from '@mui/icons-material';
 
+// Register ChartJS components
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -23,6 +25,29 @@ ChartJS.register(
   Legend
 );
 
+/**
+ * Interface for data point in savings projection
+ * @interface DataPoint
+ * @property {number} year - The year number (1-25)
+ * @property {number} withoutSolar - Cumulative cost without solar
+ * @property {number} withSolar - Cumulative cost with solar
+ * @property {number} savings - Cumulative savings (withoutSolar - withSolar)
+ */
+interface DataPoint {
+  year: number;
+  withoutSolar: number;
+  withSolar: number;
+  savings: number;
+}
+
+/**
+ * Props interface for the ChartDisplay component
+ * @interface ChartDisplayProps
+ * @property {DataPoint[]} data - Array of data points for the savings projection
+ * @property {number} systemCost - Total cost of the solar system
+ * @property {number} monthlyBill - Current monthly electricity bill
+ * @property {number} [inflationRate=0.029] - Annual electricity price inflation rate
+ */
 interface ChartDisplayProps {
   years: number[];
   cumulativeSavings: number[];
@@ -31,6 +56,42 @@ interface ChartDisplayProps {
   utilityBills: number[];
 }
 
+/**
+ * ChartDisplay Component
+ * 
+ * Displays a line chart showing the projected costs and savings over time
+ * when using solar panels compared to traditional electricity. The chart
+ * includes three lines:
+ * 1. Cumulative cost without solar
+ * 2. Cumulative cost with solar (including initial system cost)
+ * 3. Cumulative savings
+ * 
+ * The chart is interactive with tooltips showing exact values at each year.
+ * 
+ * @component
+ * @param {ChartDisplayProps} props - Component props
+ * @param {DataPoint[]} props.data - Array of yearly cost and savings data points
+ * @param {number} props.systemCost - Total cost of the solar system
+ * @param {number} props.monthlyBill - Current monthly electricity bill
+ * @param {number} [props.inflationRate=0.029] - Annual electricity price inflation rate
+ * @returns {JSX.Element} Rendered chart component
+ * 
+ * @example
+ * ```tsx
+ * const data = [
+ *   { year: 1, withoutSolar: 1200, withSolar: 15000, savings: -13800 },
+ *   { year: 2, withoutSolar: 2400, withSolar: 15200, savings: -12800 },
+ *   // ... more years
+ * ];
+ * 
+ * <ChartDisplay
+ *   data={data}
+ *   systemCost={15000}
+ *   monthlyBill={100}
+ *   inflationRate={0.029}
+ * />
+ * ```
+ */
 const ChartDisplay: React.FC<ChartDisplayProps> = ({
   years,
   cumulativeSavings,
@@ -93,7 +154,7 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
     ],
   };
 
-  const monthlyOptions = {
+  const monthlyOptions: ChartOptions<'line'> = {
     responsive: true,
     maintainAspectRatio: false,
     interaction: {
@@ -152,7 +213,7 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
     },
   };
 
-  const cumulativeOptions = {
+  const cumulativeOptions: ChartOptions<'line'> = {
     responsive: true,
     maintainAspectRatio: false,
     interaction: {

@@ -28,6 +28,11 @@ interface SavingsCalculatorSummaryProps {
   milesDrivenEquivalent: number;
 }
 
+/**
+ * Formats a decimal year value into a human-readable string of years and months.
+ * @param years - The number of years (can include decimal portions)
+ * @returns A formatted string like "2 years, 6 months" or "6 months" or "2 years"
+ */
 const formatPaybackPeriod = (years: number) => {
   const wholeYears = Math.floor(years);
   const months = Math.round((years - wholeYears) * 12);
@@ -41,6 +46,11 @@ const formatPaybackPeriod = (years: number) => {
   }
 };
 
+/**
+ * Formats large numbers into a more readable format with K (thousands) or M (millions) suffix.
+ * @param num - The number to format
+ * @returns A formatted string with appropriate suffix (e.g., "1.2M" or "500K")
+ */
 const formatLargeNumber = (num: number): string => {
   if (num >= 1000000) {
     return `${(num / 1000000).toFixed(1)}M`;
@@ -50,6 +60,11 @@ const formatLargeNumber = (num: number): string => {
   return num.toFixed(0);
 };
 
+/**
+ * Formats currency values into a more readable format with K (thousands) or M (millions) suffix.
+ * @param amount - The monetary amount to format
+ * @returns A formatted string with dollar sign and appropriate suffix (e.g., "$1.2M" or "$500K")
+ */
 const formatCurrency = (amount: number): string => {
   if (amount >= 1000000) {
     return `$${(amount / 1000000).toFixed(1)}M`;
@@ -59,6 +74,14 @@ const formatCurrency = (amount: number): string => {
   return `$${amount.toFixed(0)}`;
 };
 
+/**
+ * A reusable component that displays a summary statistic with an icon, title, and value.
+ * @param props - Component props
+ * @param props.icon - The Material-UI icon to display
+ * @param props.title - The title text for the statistic
+ * @param props.value - The value to display
+ * @param props.subtitle - Optional subtitle text to display below the value
+ */
 const SummaryItem = ({ 
   icon, 
   title, 
@@ -137,6 +160,11 @@ const SummaryItem = ({
   </Box>
 );
 
+/**
+ * A simple section title component for grouping summary items.
+ * @param props - Component props
+ * @param props.title - The title text to display
+ */
 const SectionTitle = ({ title }: { title: string }) => (
   <Grid item xs={12}>
     <Typography 
@@ -154,6 +182,25 @@ const SectionTitle = ({ title }: { title: string }) => (
   </Grid>
 );
 
+/**
+ * The main summary component that displays various solar installation statistics and savings calculations.
+ * This component presents key metrics about the solar installation including financial benefits,
+ * environmental impact, and system specifications in an organized grid layout.
+ * 
+ * @param props - Component props
+ * @param props.totalSavings - Total lifetime savings in dollars
+ * @param props.paybackPeriod - Time in years until the system pays for itself
+ * @param props.monthlyPayment - Monthly payment for the solar system
+ * @param props.monthlySaving - Monthly savings on energy bills
+ * @param props.co2Reduction - Annual CO2 emissions reduction in pounds
+ * @param props.treesEquivalent - Number of trees equivalent to the CO2 reduction
+ * @param props.annualKwhProduction - Annual electricity production in kWh
+ * @param props.totalRoofArea - Total available roof area in square feet
+ * @param props.maxPossiblePanels - Maximum number of panels that can fit
+ * @param props.currentPanels - Number of panels in current design
+ * @param props.gallonsGasSaved - Equivalent gallons of gas saved
+ * @param props.milesDrivenEquivalent - Equivalent miles driven in terms of emissions
+ */
 const SavingsCalculatorSummary: React.FC<SavingsCalculatorSummaryProps> = ({
   totalSavings,
   paybackPeriod,
