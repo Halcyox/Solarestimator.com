@@ -16,10 +16,8 @@ const AddressStep: React.FC<AddressStepProps> = ({ nextStep, prevStep, updateDat
   const [currentAddress, setCurrentAddress] = useState<string>(data.address || '');
   // Keep track if the address came from autocomplete selection
   const [isAddressValid, setIsAddressValid] = useState<boolean>(!!data.address);
-  const [currentBill, setCurrentBill] = useState<string>(data.bill > 0 ? String(data.bill) : '');
   
   const [addressError, setAddressError] = useState<string | null>(null);
-  const [billError, setBillError] = useState<string | null>(null);
 
   // Handler for AddressInput component
   const handleAddressSelect = useCallback((selectedAddress: string | null) => {
@@ -27,45 +25,29 @@ const AddressStep: React.FC<AddressStepProps> = ({ nextStep, prevStep, updateDat
     setIsAddressValid(!!selectedAddress);
     if (selectedAddress) {
       setAddressError(null); // Clear error when valid address selected
+      updateData({ address: selectedAddress }); // Update data immediately on valid selection
+    } else {
+      updateData({ address: '' }); // Clear address if selection is cleared
     }
-  }, []);
-
-  const handleBillChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    // Allow only numbers and optionally a decimal point
-    if (/^\d*\.?\d*$/.test(value)) { 
-      setCurrentBill(value);
-      setBillError(null); // Clear error on valid change
-    }
-  };
+  }, [updateData]);
 
   const handleNext = () => {
-    let isValid = true;
     setAddressError(null);
-    setBillError(null);
 
     if (!currentAddress || !isAddressValid) {
       setAddressError('Please select a valid address from the suggestions.');
-      isValid = false;
+      return; // Stop if address is not valid
     }
 
-    const billNumber = Number(currentBill);
-    if (!currentBill || isNaN(billNumber) || billNumber <= 0) {
-      setBillError('Please enter a valid monthly electric bill amount.');
-      isValid = false;
-    }
-
-    if (isValid) {
-      updateData({ address: currentAddress, bill: billNumber });
-      nextStep();
-    }
+    // Address is already updated via handleAddressSelect, just proceed
+    nextStep(); 
   };
 
   // Determine if Next button should be enabled
-  const canProceed = isAddressValid && !!currentBill && Number(currentBill) > 0;
+  const canProceed = isAddressValid && !!currentAddress;
 
   return (
-    <StepContainer title="Step 1: Location & Bill">
+    <StepContainer title="Step 1: Location">
       <div className="w-full">
         <FormField 
           id="address-input"
@@ -75,22 +57,6 @@ const AddressStep: React.FC<AddressStepProps> = ({ nextStep, prevStep, updateDat
           <AddressInput 
             initialAddress={currentAddress} 
             onAddressSelect={handleAddressSelect}
-          />
-        </FormField>
-
-        <FormField
-          id="bill-input"
-          label="Average Monthly Electric Bill ($)"
-          error={billError}
-        >
-          <TextInput 
-            id="bill-input"
-            type="text"
-            inputMode="decimal"
-            placeholder="e.g., 150"
-            value={currentBill}
-            onChange={handleBillChange}
-            hasError={!!billError}
           />
         </FormField>
         

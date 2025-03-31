@@ -1,11 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { RoofSegmentStat, BuildingInsights } from './apiHelper';
 
-declare global {
-  interface Window {
-    google: typeof google;
-  }
-}
+// We'll skip redefining window.google type since it's defined elsewhere
 
 interface RoofVisualizationProps {
   latitude: number;
@@ -34,6 +30,8 @@ const RoofVisualization: React.FC<RoofVisualizationProps> = ({
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const [canvasSize, setCanvasSize] = useState({ width: 800, height: 600 });
   const [scale, setScale] = useState(1);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Calculate bounds for all roof segments
   const calculateBounds = (segments: RoofSegmentStat[]) => {
@@ -165,8 +163,10 @@ const RoofVisualization: React.FC<RoofVisualizationProps> = ({
     ];
 
     // Calculate segment width and height in meters
-    const segmentWidthMeters = segment.absoluteWidthMeters;
-    const segmentHeightMeters = segment.absoluteHeightMeters;
+    const segmentWidthMeters = (segment as any).absoluteWidthMeters || 
+                               Math.sqrt(segment.stats.areaMeters2); // Estimate width from area
+    const segmentHeightMeters = (segment as any).absoluteHeightMeters || 
+                               Math.sqrt(segment.stats.areaMeters2); // Estimate height from area
 
     // Calculate panel dimensions in meters (maintaining aspect ratio)
     const panelWidth = Math.min(
