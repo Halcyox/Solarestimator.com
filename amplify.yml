@@ -5,7 +5,8 @@ applications:
       phases:
         preBuild:
           commands:
-            - npm ci
+            - echo "Installing dependencies..."
+            - npm install
         build:
           commands:
             - echo "Running linting check..."
