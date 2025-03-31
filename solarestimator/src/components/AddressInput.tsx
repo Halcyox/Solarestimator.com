@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 import { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
@@ -186,235 +185,125 @@ export const AddressInput = ({ onSubmit, onChange, initialAddress = '', initialB
         address: selectedAddress,
         bill: Number(newBill),
       });
-=======
-import React, { useEffect, useState, useRef, useCallback } from 'react';
-
-export interface AddressInputProps {
-  initialAddress?: string;
-  onAddressSelect: (address: string | null) => void;
-}
-
-const LOG_PREFIX = "[AddressInput]";
-
-export const AddressInput = ({ initialAddress, onAddressSelect }: AddressInputProps): JSX.Element => {
-  console.log(`${LOG_PREFIX} Component Render`);
-  const [address, setAddress] = useState<string>(initialAddress || '');
-  const [isPlaceSelected, setIsPlaceSelected] = useState<boolean>(!!initialAddress);
-  const inputRef = useRef<HTMLInputElement | null>(null);
-  // Ref to store the autocomplete instance to prevent recreation issues
-  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
-
-  useEffect(() => {
-    console.log(`${LOG_PREFIX} Initial address effect run. InitialAddress:`, initialAddress);
-    if (initialAddress) {
-      setAddress(initialAddress);
-      setIsPlaceSelected(true);
-    }
-  }, [initialAddress]);
-
-  // Initialize Autocomplete - Now we can assume Google Maps is available
-  // TODO: Google recommends migrating to google.maps.places.PlaceAutocompleteElement
-  // from the Autocomplete class, but the new API isn't fully documented yet.
-  // We should migrate when the new API is more widely available.
-  useEffect(() => {
-    console.log(`${LOG_PREFIX} Autocomplete Init Effect: START`);
-    
-    const isInitialized = autocompleteRef.current !== null;
-    console.log(`${LOG_PREFIX} Autocomplete Init Effect: Already initialized? ${isInitialized}`);
-
-    // Initialize ONLY if not already initialized via ref
-    if (inputRef.current && !isInitialized) {
-        console.log(`${LOG_PREFIX} Autocomplete Init Effect: CONDITIONS MET. Initializing...`);
-        try {
-             console.log(`${LOG_PREFIX} Autocomplete Init Effect: Creating Autocomplete instance...`);
-             const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
-                types: ['address'],
-                componentRestrictions: { country: 'us' },
-                fields: ["formatted_address"], 
-             });
-             autocompleteRef.current = autocomplete; // Store instance in ref
-             console.log(`${LOG_PREFIX} Autocomplete Init Effect: Autocomplete instance CREATED.`);
-
-             console.log(`${LOG_PREFIX} Autocomplete Init Effect: Adding place_changed listener...`);
-             autocomplete.addListener('place_changed', () => {
-                 console.log(`${LOG_PREFIX} place_changed event FIRED.`);
-                 const place = autocomplete.getPlace();
-                 if (place && place.formatted_address) {
-                    const formattedAddress = place.formatted_address;
-                    console.log(`${LOG_PREFIX} place_changed: VALID place selected:`, formattedAddress);
-                    setAddress(formattedAddress);
-                    setIsPlaceSelected(true);
-                    onAddressSelect(formattedAddress);
-                 } else {
-                    console.log(`${LOG_PREFIX} place_changed: INVALID place or no address.`);
-                    setIsPlaceSelected(false);
-                    onAddressSelect(null); 
-                 }
-             });
-             console.log(`${LOG_PREFIX} Autocomplete Init Effect: place_changed listener ADDED.`);
-             
-             // Mark the input ref attribute as well, for consistency/debugging
-             inputRef.current.setAttribute('data-autocomplete-init', 'true');
-
-         } catch (error) {
-             console.error(`${LOG_PREFIX} Autocomplete Init Effect: Error during initialization:`, error);
-         }
-    } else {
-        // Log reasons for skipping
-        if (!inputRef.current) {
-             console.log(`${LOG_PREFIX} Autocomplete Init Effect: SKIPPED (Input ref not available).`);
-        } else if (isInitialized) {
-             console.log(`${LOG_PREFIX} Autocomplete Init Effect: SKIPPED (Already initialized via ref).`);
-        }
-    }
-    console.log(`${LOG_PREFIX} Autocomplete Init Effect: END.`);
-
-  }, [onAddressSelect]);
-
-  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    console.log(`${LOG_PREFIX} handleAddressChange: Value changing to:`, e.target.value);
-    const newAddress = e.target.value;
-    setAddress(newAddress);
-    if (isPlaceSelected) {
-      console.log(`${LOG_PREFIX} handleAddressChange: User typing, invalidating previous selection.`);
-      setIsPlaceSelected(false);
-      onAddressSelect(null);
->>>>>>> Stashed changes
     }
   };
-  
-  // Add focus/blur/keydown logs
-  const handleFocus = useCallback(() => {
-      console.log(`${LOG_PREFIX} Input focused.`);
-  }, []);
-  
-  const handleBlur = useCallback(() => {
-      console.log(`${LOG_PREFIX} Input blurred.`);
-  }, []);
-  
-  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-      console.log(`${LOG_PREFIX} KeyDown: ${e.key}`);
-  }, []);
 
   /**
-   * Effect hook to update the selected address when the initialAddress prop changes.
+   * Handler function for form submission.
+   * @param {React.FormEvent<HTMLFormElement>} e - The form event.
    */
-  useEffect(() => {
-    if (initialAddress) {
-      setSelectedAddress(initialAddress);
-      setValue(initialAddress, false);
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    
+    if (!selectedAddress) {
+      console.error('No address selected');
+      return;
     }
-  }, [initialAddress, setValue]);
+    
+    if (!bill) {
+      console.error('No bill amount entered');
+      return;
+    }
+    
+    if (onSubmit) {
+      onSubmit({
+        address: selectedAddress,
+        bill: Number(bill),
+      });
+    }
+  };
 
   return (
-<<<<<<< Updated upstream
-    /**
-     * Form component that contains the address and bill inputs
-     * Prevents default form submission and calls onSubmit prop if provided
-     */
-    <form onSubmit={(e: React.FormEvent) => {
-      e.preventDefault();
-      if (onSubmit && selectedAddress && bill) {
-        onSubmit({
-          address: selectedAddress,
-          bill: Number(bill),
-        });
-      }
-    }}>
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-        {/* Address input container with autocomplete dropdown */}
-        <Box sx={{ position: 'relative' }}>
-          <TextField
-            fullWidth
-            disabled={!ready}
-            placeholder="Enter your address"
-            value={value}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-              setValue(e.target.value);
-              setSelectedAddress(''); // Clear selected address when user types
-            }}
-            label="Address"
-            required
-            error={!ready}
-            helperText={!ready ? "Loading Google Maps..." : ""}
-          />
-          {/* Autocomplete suggestions dropdown */}
-          {status === "OK" && (
-            <Box sx={{
-              position: 'absolute',
-              top: '100%',
-              left: 0,
-              right: 0,
-              zIndex: 1000,
-              mt: 1,
-              bgcolor: 'background.paper',
-              boxShadow: 3,
-              borderRadius: 1,
-            }}>
-              {(data as PlaceSuggestion[]).map(({ place_id, description }) => (
-                <Box
-                  key={place_id}
-                  sx={{
-                    p: 1.5,
-                    cursor: 'pointer',
-                    '&:hover': {
-                      bgcolor: 'action.hover',
-                    },
-                  }}
-                  onClick={() => handleSelect(description)}
-                >
-                  {description}
-                </Box>
-              ))}
-            </Box>
-          )}
-        </Box>
-
-        {/* Monthly bill input */}
-        <TextField
-          type="number"
-          label="Monthly Electric Bill"
-          value={bill}
-          onChange={handleBillChange}
-          fullWidth
-          required
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <AttachMoneyIcon />
-              </InputAdornment>
-            ),
+    <Box
+      component="form"
+      onSubmit={handleSubmit}
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 2,
+        width: '100%',
+      }}
+    >
+      <TextField
+        value={value}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => setValue(e.target.value)}
+        disabled={!ready}
+        label="Enter your address"
+        fullWidth
+        variant="outlined"
+        placeholder="123 Main St, City, State"
+        InputProps={{
+          sx: { borderRadius: 2 },
+        }}
+      />
+      
+      {/* Render the autocomplete suggestions */}
+      {status === 'OK' && (
+        <Box
+          sx={{
+            mt: -1,
+            mb: 2,
+            maxHeight: '200px',
+            overflowY: 'auto',
+            bgcolor: 'background.paper',
+            borderRadius: 1,
+            boxShadow: 3,
           }}
-        />
-
-        {/* Submit button - only shown if onSubmit prop is provided */}
-        {onSubmit && (
-          <Button 
-            type="submit" 
-            variant="contained" 
-            color="primary"
-            size="large"
-            fullWidth
-          >
-            Continue
-          </Button>
-        )}
-      </Box>
-    </form>
-=======
-    <input
-      id="address-input"
-      type="text"
-      placeholder="Enter property address"
-      ref={inputRef}
-      value={address}
-      onChange={handleAddressChange}
-      onFocus={handleFocus}
-      onBlur={handleBlur}
-      onKeyDown={handleKeyDown}
-      className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 transition-colors input input-bordered"
-      data-autocomplete-init={autocompleteRef.current !== null ? 'true' : 'false'}
-    />
->>>>>>> Stashed changes
+        >
+          {data.map((suggestion: PlaceSuggestion) => (
+            <Box
+              key={suggestion.place_id}
+              onClick={() => handleSelect(suggestion.description)}
+              sx={{
+                px: 2,
+                py: 1,
+                cursor: 'pointer',
+                '&:hover': {
+                  bgcolor: 'action.hover',
+                },
+              }}
+            >
+              <Box sx={{ fontWeight: 'bold' }}>{suggestion.structured_formatting.main_text}</Box>
+              <Box sx={{ fontSize: '0.85rem', color: 'text.secondary' }}>
+                {suggestion.structured_formatting.secondary_text}
+              </Box>
+            </Box>
+          ))}
+        </Box>
+      )}
+      
+      <TextField
+        value={bill}
+        onChange={handleBillChange}
+        label="Monthly Electric Bill"
+        type="number"
+        fullWidth
+        variant="outlined"
+        placeholder="150"
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <AttachMoneyIcon />
+            </InputAdornment>
+          ),
+          sx: { borderRadius: 2 },
+        }}
+      />
+      
+      <Button
+        type="submit"
+        variant="contained"
+        color="primary"
+        sx={{
+          mt: 2,
+          py: 1.5,
+          borderRadius: 2,
+          fontWeight: 'bold',
+        }}
+        disabled={!selectedAddress || !bill}
+      >
+        Calculate Savings
+      </Button>
+    </Box>
   );
-}
+};
