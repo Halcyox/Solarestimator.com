@@ -1,6 +1,7 @@
 import '../styles/globals.css';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
+import Script from 'next/script';
 
 /**
  * The main app component. This wraps the entire app with a Navbar and Footer.
@@ -13,6 +14,10 @@ import Footer from '../components/Footer';
 function MyApp({ Component, pageProps }: { Component: React.ComponentType, pageProps: any }): JSX.Element {
     return (
         <>
+            <Script
+                src={`https://maps.googleapis.com/maps/api/js?key=${process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}&libraries=places`}
+                strategy="beforeInteractive"
+            />
             <Navbar />
             <Component {...pageProps} />
             <Footer />
