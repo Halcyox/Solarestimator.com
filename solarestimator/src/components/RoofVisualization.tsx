@@ -1,48 +1,22 @@
 import React, { useEffect, useRef, useState } from 'react';
-<<<<<<< Updated upstream
-
-interface RoofSegment {
-  pitchDegrees: number;
-  azimuthDegrees: number;
-  segmentType: string;
-  groundAreaMeters2: number;
-  absoluteHeightMeters: number;
-  absoluteWidthMeters: number;
-  bounds: {
-    n: number;
-    s: number;
-    e: number;
-    w: number;
-  } | null;
-  boundingBox?: {
-    sw: { latitude: number; longitude: number };
-    ne: { latitude: number; longitude: number };
-  };
-=======
 import { RoofSegmentStat, BuildingInsights } from './apiHelper';
 
 declare global {
   interface Window {
     google: typeof google;
   }
->>>>>>> Stashed changes
 }
 
 interface RoofVisualizationProps {
   latitude: number;
   longitude: number;
-<<<<<<< Updated upstream
-  roofSegments: RoofSegment[];
-=======
   roofSegments: RoofSegmentStat[];
->>>>>>> Stashed changes
   numberOfPanels: number;
   shadingFactor: number;
   tiltFactor: number;
   apiKey: string;
 }
 
-<<<<<<< Updated upstream
 interface CanvasPoint {
   x: number;
   y: number;
@@ -62,7 +36,7 @@ const RoofVisualization: React.FC<RoofVisualizationProps> = ({
   const [scale, setScale] = useState(1);
 
   // Calculate bounds for all roof segments
-  const calculateBounds = (segments: RoofSegment[]) => {
+  const calculateBounds = (segments: RoofSegmentStat[]) => {
     if (!segments.length) return { minLat: 0, maxLat: 0, minLng: 0, maxLng: 0 };
 
     let minLat = Infinity;
@@ -71,15 +45,8 @@ const RoofVisualization: React.FC<RoofVisualizationProps> = ({
     let maxLng = -Infinity;
 
     segments.forEach(segment => {
-      // Try to get bounds from the transformed bounds property first
-      if (segment.bounds) {
-        minLat = Math.min(minLat, segment.bounds.s);
-        maxLat = Math.max(maxLat, segment.bounds.n);
-        minLng = Math.min(minLng, segment.bounds.w);
-        maxLng = Math.max(maxLng, segment.bounds.e);
-      } 
-      // Fall back to boundingBox if bounds is not available
-      else if (segment.boundingBox) {
+      // Get bounds from the boundingBox
+      if (segment.boundingBox) {
         const { sw, ne } = segment.boundingBox;
         minLat = Math.min(minLat, sw.latitude, ne.latitude);
         maxLat = Math.max(maxLat, sw.latitude, ne.latitude);
@@ -132,33 +99,20 @@ const RoofVisualization: React.FC<RoofVisualizationProps> = ({
   const PANEL_SPACING = 0.2; // Spacing between panels in meters
 
   // Draw roof segment
-  const drawRoofSegment = (ctx: CanvasRenderingContext2D, segment: RoofSegment) => {
+  const drawRoofSegment = (ctx: CanvasRenderingContext2D, segment: RoofSegmentStat) => {
     // Skip if no valid bounds data
-    if (!segment.bounds && !segment.boundingBox) {
+    if (!segment.boundingBox) {
       console.warn('Segment missing bounds data:', segment);
       return;
     }
 
-    let points: CanvasPoint[];
-    
-    if (segment.bounds) {
-      points = [
-        latLngToCanvas(segment.bounds.s, segment.bounds.w), // SW
-        latLngToCanvas(segment.bounds.s, segment.bounds.e), // SE
-        latLngToCanvas(segment.bounds.n, segment.bounds.e), // NE
-        latLngToCanvas(segment.bounds.n, segment.bounds.w)  // NW
-      ];
-    } else if (segment.boundingBox) {
-      const { sw, ne } = segment.boundingBox;
-      points = [
-        latLngToCanvas(sw.latitude, sw.longitude),
-        latLngToCanvas(sw.latitude, ne.longitude),
-        latLngToCanvas(ne.latitude, ne.longitude),
-        latLngToCanvas(ne.latitude, sw.longitude)
-      ];
-    } else {
-      return;
-    }
+    const { sw, ne } = segment.boundingBox;
+    const points: CanvasPoint[] = [
+      latLngToCanvas(sw.latitude, sw.longitude),
+      latLngToCanvas(sw.latitude, ne.longitude),
+      latLngToCanvas(ne.latitude, ne.longitude),
+      latLngToCanvas(ne.latitude, sw.longitude)
+    ];
 
     // Begin drawing the roof segment
     ctx.beginPath();
@@ -195,33 +149,20 @@ const RoofVisualization: React.FC<RoofVisualizationProps> = ({
   };
 
   // Draw potential panel layout
-  const drawPanelLayout = (ctx: CanvasRenderingContext2D, segment: RoofSegment) => {
+  const drawPanelLayout = (ctx: CanvasRenderingContext2D, segment: RoofSegmentStat) => {
     // Skip if no valid bounds data
-    if (!segment.bounds && !segment.boundingBox) {
+    if (!segment.boundingBox) {
       console.warn('Segment missing bounds data:', segment);
       return;
     }
 
-    let points: CanvasPoint[];
-    
-    if (segment.bounds) {
-      points = [
-        latLngToCanvas(segment.bounds.s, segment.bounds.w), // SW
-        latLngToCanvas(segment.bounds.s, segment.bounds.e), // SE
-        latLngToCanvas(segment.bounds.n, segment.bounds.e), // NE
-        latLngToCanvas(segment.bounds.n, segment.bounds.w)  // NW
-      ];
-    } else if (segment.boundingBox) {
-      const { sw, ne } = segment.boundingBox;
-      points = [
-        latLngToCanvas(sw.latitude, sw.longitude),
-        latLngToCanvas(sw.latitude, ne.longitude),
-        latLngToCanvas(ne.latitude, ne.longitude),
-        latLngToCanvas(ne.latitude, sw.longitude)
-      ];
-    } else {
-      return;
-    }
+    const { sw, ne } = segment.boundingBox;
+    const points: CanvasPoint[] = [
+      latLngToCanvas(sw.latitude, sw.longitude),
+      latLngToCanvas(sw.latitude, ne.longitude),
+      latLngToCanvas(ne.latitude, ne.longitude),
+      latLngToCanvas(ne.latitude, sw.longitude)
+    ];
 
     // Calculate segment width and height in meters
     const segmentWidthMeters = segment.absoluteWidthMeters;
@@ -395,251 +336,6 @@ const RoofVisualization: React.FC<RoofVisualizationProps> = ({
     });
 
   }, [canvasSize, roofSegments, shadingFactor, tiltFactor, numberOfPanels]); // Add all dependencies
-=======
-const MapComponent: React.FC<{
-  center: google.maps.LatLngLiteral;
-  zoom: number;
-  buildingData: BuildingInsights | null;
-}> = ({ center, zoom, buildingData }) => {
-  const ref = useRef<HTMLDivElement>(null);
-  const [map, setMap] = useState<google.maps.Map>();
-  const [overlay, setOverlay] = useState<any>();
-
-  class RoofOverlay extends window.google.maps.OverlayView {
-    private canvas: HTMLCanvasElement | null = null;
-    private buildingData: BuildingInsights;
-    private mapInstance: google.maps.Map | null = null;
-
-    constructor(buildingData: BuildingInsights, map: google.maps.Map) {
-      super();
-      this.buildingData = buildingData;
-      this.mapInstance = map;
-      this.setMap(map);
-    }
-
-    onAdd(): void {
-      const canvas = document.createElement('canvas');
-      canvas.style.position = 'absolute';
-      const panes = this.getPanes();
-      if (panes?.overlayMouseTarget) {
-        panes.overlayMouseTarget.appendChild(canvas);
-        this.canvas = canvas;
-      } else {
-        console.error("Cannot add RoofOverlay: Map panes not available.");
-      }
-    }
-
-    draw(): void {
-      if (!this.canvas || !this.mapInstance) return;
-
-      const overlayProjection = this.getProjection();
-      if (!overlayProjection) {
-        console.error("Cannot draw RoofOverlay: Map projection not available.");
-        return;
-      }
-
-      const solarPotential = this.buildingData.solarPotential;
-      if (!solarPotential?.roofSegmentStats || solarPotential.roofSegmentStats.length === 0) {
-        this.canvas.width = 0;
-        this.canvas.height = 0;
-        return;
-      }
-
-      const segments = solarPotential.roofSegmentStats;
-
-      const bounds = new google.maps.LatLngBounds();
-      segments.forEach(segment => {
-        bounds.extend(new google.maps.LatLng(segment.boundingBox.sw.latitude, segment.boundingBox.sw.longitude));
-        bounds.extend(new google.maps.LatLng(segment.boundingBox.ne.latitude, segment.boundingBox.ne.longitude));
-      });
-
-      const swPx = overlayProjection.fromLatLngToDivPixel(bounds.getSouthWest());
-      const nePx = overlayProjection.fromLatLngToDivPixel(bounds.getNorthEast());
-
-      if (!swPx || !nePx) {
-        console.error("Cannot draw RoofOverlay: Failed to convert LatLng bounds to pixels.");
-        return;
-      }
-
-      this.canvas.style.left = swPx.x + 'px';
-      this.canvas.style.top = nePx.y + 'px';
-      this.canvas.width = nePx.x - swPx.x;
-      this.canvas.height = swPx.y - nePx.y;
-
-      const ctx = this.canvas.getContext('2d');
-      if (!ctx) return;
-
-      ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-
-      const maxSunshine = solarPotential.maxSunshineHoursPerYear || 1;
-
-      segments.forEach(segment => {
-        const segmentSw = overlayProjection.fromLatLngToDivPixel(
-          new google.maps.LatLng(segment.boundingBox.sw.latitude, segment.boundingBox.sw.longitude)
-        );
-        const segmentNe = overlayProjection.fromLatLngToDivPixel(
-          new google.maps.LatLng(segment.boundingBox.ne.latitude, segment.boundingBox.ne.longitude)
-        );
-
-        if (!segmentSw || !segmentNe) return;
-
-        const medianSunshine = segment.stats.sunshineQuantiles?.[Math.floor(segment.stats.sunshineQuantiles.length / 2)] || 0;
-        const sunshineIntensity = medianSunshine / maxSunshine;
-        
-        const hue = 60 * (1 - sunshineIntensity);
-        ctx.fillStyle = `hsla(${hue}, 100%, 50%, 0.6)`;
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
-        ctx.lineWidth = 1;
-
-        ctx.beginPath();
-        ctx.rect(
-          segmentSw.x - swPx.x,
-          segmentNe.y - nePx.y,
-          segmentNe.x - segmentSw.x,
-          segmentSw.y - segmentNe.y
-        );
-        ctx.fill();
-        ctx.stroke();
-      });
-
-      if (solarPotential.solarPanels) {
-        solarPotential.solarPanels.forEach(panel => {
-          const point = overlayProjection.fromLatLngToDivPixel(
-            new google.maps.LatLng(panel.center.latitude, panel.center.longitude)
-          );
-          if (!point) return;
-
-          ctx.fillStyle = 'rgba(26, 115, 232, 0.8)';
-          ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
-          ctx.lineWidth = 0.5;
-
-          const panelSize = 4;
-          ctx.beginPath();
-          ctx.rect(
-            point.x - swPx.x - panelSize/2,
-            point.y - nePx.y - panelSize/2,
-            panelSize,
-            panelSize
-          );
-          ctx.fill();
-          ctx.stroke();
-        });
-      }
-    }
-
-    onRemove(): void {
-      if (this.canvas && this.canvas.parentNode) {
-        this.canvas.parentNode.removeChild(this.canvas);
-        this.canvas = null;
-      }
-      this.mapInstance = null;
-    }
-  }
-
-  useEffect(() => {
-    if (ref.current && !map && window.google?.maps?.Map) {
-      const mapInstance = new window.google.maps.Map(ref.current, {
-        center,
-        zoom: 18,
-        mapTypeId: 'satellite',
-        tilt: 0,
-        disableDefaultUI: true,
-        gestureHandling: "none",
-        keyboardShortcuts: false,
-      });
-      setMap(mapInstance);
-    } else if (!window.google?.maps?.Map) {
-      console.error("Google Maps library not loaded when trying to initialize map.");
-    }
-  }, [ref, map, center, zoom]);
-
-  useEffect(() => {
-    if (!map) return;
-
-    if (overlay) {
-      overlay.setMap(null);
-      setOverlay(null);
-    }
-
-    if (buildingData && buildingData.solarPotential?.roofSegmentStats) {
-      const newOverlay = new RoofOverlay(buildingData, map);
-      setOverlay(newOverlay);
-      
-      const bounds = new google.maps.LatLngBounds();
-      buildingData.solarPotential.roofSegmentStats.forEach(segment => {
-        bounds.extend(new google.maps.LatLng(segment.boundingBox.sw.latitude, segment.boundingBox.sw.longitude));
-        bounds.extend(new google.maps.LatLng(segment.boundingBox.ne.latitude, segment.boundingBox.ne.longitude));
-      });
-      if (!bounds.isEmpty()) {
-        map.fitBounds(bounds, 40);
-      }
-    } else {
-      console.log("No valid building data or roof segments to display overlay.");
-    }
-
-    return () => {
-      if (overlay) {
-        overlay.setMap(null);
-      }
-    };
-  }, [map, buildingData]);
-
-  return <div ref={ref} style={{ width: '100%', height: '400px' }} aria-label="Roof visualization map" />;
-};
-
-const RoofVisualization: React.FC<RoofVisualizationProps> = ({ 
-  latitude, 
-  longitude, 
-  apiKey 
-}) => {
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [buildingData, setBuildingData] = useState<BuildingInsights | null>(null);
-
-  useEffect(() => {
-    const fetchBuildingInsights = async () => {
-      if (!latitude || !longitude || !apiKey) {
-        setError("Missing location or API key for visualization.");
-        setLoading(false);
-        return;
-      }
-      
-      try {
-        setLoading(true);
-        setError(null);
-        setBuildingData(null);
-        
-        const url = `https://solar.googleapis.com/v1/buildingInsights:findClosest?location.latitude=${latitude}&location.longitude=${longitude}&requiredQuality=HIGH&key=${apiKey}`;
-        
-        const response = await fetch(url);
-        if (!response.ok) {
-          let errorBody = 'Unknown error';
-          try { errorBody = await response.text(); } catch(e){}
-          console.error('API Error Response:', errorBody);
-          throw new Error(`Failed to fetch building insights: ${response.status} ${response.statusText}`);
-        }
-        
-        const data: BuildingInsights = await response.json();
-        console.log('Fetched Building Insights:', data);
-
-        if (!data || !data.solarPotential) {
-          console.warn("Received building insights data but missing solarPotential.");
-        }
-
-        setBuildingData(data);
-
-      } catch (error) {
-        console.error('Error fetching building insights:', error);
-        setError(error instanceof Error ? error.message : 'Failed to load building visualization');
-        setBuildingData(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchBuildingInsights();
-  }, [latitude, longitude, apiKey]);
->>>>>>> Stashed changes
 
   if (loading) {
     return <div className="text-center p-4">Loading roof visualization...</div>;
@@ -650,7 +346,6 @@ const RoofVisualization: React.FC<RoofVisualizationProps> = ({
   }
 
   return (
-<<<<<<< Updated upstream
     <canvas
       ref={canvasRef}
       style={{
@@ -665,21 +360,3 @@ const RoofVisualization: React.FC<RoofVisualizationProps> = ({
 };
 
 export default RoofVisualization;
-=======
-    <div className="visualization-container my-4">
-      <h3 className="text-lg font-semibold mb-2 text-center">Roof Visualization</h3>
-      {window.google?.maps ? (
-        <MapComponent 
-          center={{ lat: latitude, lng: longitude }}
-          zoom={18}
-          buildingData={buildingData}
-        />
-      ) : (
-        <div className="text-center p-4 text-gray-500">Maps library loading...</div>
-      )}
-    </div>
-  );
-};
-
-export default RoofVisualization;
->>>>>>> Stashed changes

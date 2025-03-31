@@ -1,4 +1,4 @@
-<<<<<<< Updated upstream
+// SavingsCalculator.tsx
 import React, { useState, useEffect } from 'react';
 import { Grid, Container, Paper, Tabs, Tab, Box } from '@mui/material';
 import SystemConfiguration from './SavingsCalculator/SystemConfiguration';
@@ -9,7 +9,8 @@ import CostFactors from './SavingsCalculator/CostFactors';
 import ChartDisplay from './SavingsCalculator/ChartDisplay';
 import SavingsCalculatorSummary from './SavingsCalculator/SavingsCalculatorSummary';
 import TimelineControl from './SavingsCalculator/TimelineControl';
-import { SolarData, PanelType, InverterType, FinancingOption } from './SavingsCalculator/types';
+import { SolarData, PanelType, InverterType } from './SavingsCalculator/types';
+import { FinancingOption } from './Wizard';
 
 // Constants
 const AVERAGE_PANEL_OUTPUT_KW = 0.4; // Increased to reflect modern panel efficiency
@@ -33,18 +34,6 @@ const KG_CO2_OFFSET_PER_TREE = 21.7; // EPA estimate per urban tree per year
 const GALLONS_GASOLINE_PER_KWH = 0.0892; // EPA conversion factor
 const MILES_DRIVEN_PER_KWH = 2.24; // EPA average for passenger vehicles
 
-interface SolarData {
-  maxArrayPanelsCount: number;
-  maxArrayAreaMeters2: number;
-  maxSunshineHoursPerYear: number;
-  carbonOffsetFactorKgPerMwh: number;
-}
-=======
-// SavingsCalculator.tsx
-import React from 'react';
-import { FinancingOption } from './Wizard';
->>>>>>> Stashed changes
-
 interface SavingsCalculatorProps {
   solarData: {
     maxArrayPanelsCount?: number;
@@ -54,11 +43,15 @@ interface SavingsCalculatorProps {
     roofSegmentStats?: any[];
   } | null;
   bill: number;
-<<<<<<< Updated upstream
-  totalEnergyProductionPerYearKwh: number;
-  onPanelChange: (value: number) => void;
-  onShadingChange: (value: number) => void;
-  onTiltChange: (value: number) => void;
+  totalEnergyProductionPerYearKwh: number | null;
+  numberOfPanels: number;
+  shadingFactor: number;
+  tiltFactor: number;
+  financingOption: FinancingOption;
+  onPanelChange: (panels: number) => void;
+  onShadingChange: (shading: number) => void;
+  onTiltChange: (tilt: number) => void;
+  onYearChange: (years: number) => void;
 }
 
 interface SummaryData {
@@ -83,38 +76,21 @@ interface RoofSegment {
   area: number;
 }
 
-=======
-  totalEnergyProductionPerYearKwh: number | null;
-  numberOfPanels: number;
-  shadingFactor: number;
-  tiltFactor: number;
-  financingOption: FinancingOption;
-  onPanelChange: (panels: number) => void;
-  onShadingChange: (shading: number) => void;
-  onTiltChange: (tilt: number) => void;
-  onYearChange: (years: number) => void;
-}
-
->>>>>>> Stashed changes
 const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({
   solarData,
   bill,
   totalEnergyProductionPerYearKwh,
-<<<<<<< Updated upstream
-=======
   numberOfPanels,
   shadingFactor,
   tiltFactor,
   financingOption,
->>>>>>> Stashed changes
   onPanelChange,
   onShadingChange,
   onTiltChange,
   onYearChange,
 }) => {
-<<<<<<< Updated upstream
   // System Configuration State
-  const [panelCount, setPanelCount] = useState(4); // Starting with minimum viable system
+  const [panelCount, setPanelCount] = useState(numberOfPanels); 
   const [panelType, setPanelType] = useState<PanelType>('Monocrystalline');
   const [inverterType, setInverterType] = useState<InverterType>('StringInverter');
   const [hasBattery, setHasBattery] = useState(false);
@@ -124,7 +100,7 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({
     {
       tiltAngle: 30,
       azimuth: 180, // South-facing
-      shadingFactor: 0,
+      shadingFactor: shadingFactor,
       area: 40, // m²
     }
   ]);
@@ -140,10 +116,9 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({
   const maxPossiblePanels = Math.floor(totalArea / PANEL_AREA_M2);
   const MAX_SYSTEM_SIZE_KW = 30; // Maximum typical residential system size
   const maxPanelsByPower = Math.floor(MAX_SYSTEM_SIZE_KW / AVERAGE_PANEL_OUTPUT_KW);
-  const adjustedMaxPanels = Math.min(maxPossiblePanels, maxPanelsByPower, solarData.maxArrayPanelsCount || 100);
+  const adjustedMaxPanels = Math.min(maxPossiblePanels, maxPanelsByPower, solarData?.maxArrayPanelsCount || 100);
 
   // Financial Inputs State
-  const [financingOption, setFinancingOption] = useState<FinancingOption>('cash');
   const [loanTerm, setLoanTerm] = useState(20);
   const [interestRate, setInterestRate] = useState(4.5);
   const [downPayment, setDownPayment] = useState(0);
@@ -206,9 +181,25 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({
       incentivePercentage,
       monthlyBill,
       utilityRate,
-      weightedTiltAngle,
-      weightedShadingFactor
+      maintenanceCost,
+      inflationRate,
+      utilityInflationRate,
+      projectionYears,
     });
+
+    // Update parent component with panel count change
+    onPanelChange(panelCount);
+
+    // Update parent with shading factor change
+    onShadingChange(weightedShadingFactor);
+
+    // Update parent with tilt angle change
+    onTiltChange(weightedTiltAngle);
+
+    // Update parent with projection years change
+    onYearChange(projectionYears);
+
+    // Call calculation function
     calculateSavings();
   }, [
     panelCount,
@@ -220,20 +211,20 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({
     interestRate,
     downPayment,
     incentivePercentage,
-    roofSegments,
     monthlyBill,
     utilityRate,
     maintenanceCost,
     inflationRate,
     utilityInflationRate,
     projectionYears,
+    weightedShadingFactor,
     weightedTiltAngle,
-    weightedShadingFactor
+    totalEnergyProductionPerYearKwh,
   ]);
 
+  // Handler functions
   const handlePanelCountChange = (value: number) => {
-    setPanelCount(value);
-    onPanelChange(value);
+    setPanelCount(Math.min(value, adjustedMaxPanels));
   };
 
   const handlePanelTypeChange = (type: PanelType) => {
@@ -547,29 +538,6 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({
         </Grid>
       </Grid>
     </Container>
-=======
-  // Calculate savings based on inputs
-  const calculateSavings = () => {
-    if (!totalEnergyProductionPerYearKwh) return 0;
-
-    const electricityRate = 0.15; // Average electricity rate in $/kWh
-    const annualSavings = totalEnergyProductionPerYearKwh * electricityRate;
-    return annualSavings;
-  };
-
-  const annualSavings = calculateSavings();
-
-  return (
-    <div className="savings-calculator p-4 border border-gray-200 rounded-lg shadow-sm mt-4">
-      <h3 className="text-xl font-semibold mb-3 text-secondary-color">Savings Summary</h3>
-      <div className="savings-details space-y-2 text-sm">
-        <p>Annual Energy Production: <span className="font-medium">{totalEnergyProductionPerYearKwh?.toFixed(0) ?? 'N/A'} kWh</span></p>
-        <p>Estimated Annual Savings: <span className="font-medium text-green-600">${annualSavings.toFixed(2)}</span></p>
-        <p>Financing Option: <span className="font-medium">{financingOption}</span></p>
-        <p>Estimated Payback Period: <span className="font-medium">{(numberOfPanels * 1000) / (annualSavings || 1)} years</span></p>
-      </div>
-    </div>
->>>>>>> Stashed changes
   );
 };
 
