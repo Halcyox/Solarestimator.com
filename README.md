@@ -1,13 +1,10 @@
-# Solarestimator.com
- Lead Click Funnel calculator website for Solarestimator.com
+# Solar Estimator
 
-Basically, this whole website is a click funnel + lead generator for solar roofing installations.
+A Next.js application for estimating solar potential and cost savings based on location.
 
-It should be lightweight, modern, high-quality, and should not be overtly complex.
+## Project Structure
 
-The cost savings should be particularly obvious.
-
-It may be upgraded in the future to have more components beyond solar panel installations.
+The main application is in the `solarestimator` directory.
 
 # Developer Notes:
 
@@ -178,3 +175,114 @@ List of API's:
     - Developer integrations + CRMs + dashboard + other crap
     - https://offers.roofle.com/rqp
 
+Notes 9/30/24
+
+Add Tooltips for every variable in the calculator.
+Add comprehensive pdf.
+If the home roof geometry is too complex, at least we can use the solarAPI data with the shading is useful.
+In the absence of the shading data, a generalized estimate based off of roof size.
+EagleEye is where they get data when none of the public data has what we need for the shade report.
+Less than 4% of homes trying to get solar are lacking in data.
+
+Focus on Texas, Florida, California, New York, Connecticut, Massachusetts, New Jersey.
+
+Add personality, a little bit of whimsical, don't assume anyone knows anything.
+
+A lot of the current stuff, the user doesn't know all the overly complex things.
+
+A lot of the sliders can be in the backend. 98% of the users will want a super streamlined, straightforward experience.
+
+Give people the data for my address.
+
+Maybe instead of caret expansion, if someone wants more detail, maybe we could even ask them: how much time do you have?
+How detailed do you want to go with this analysis?
+
+Quick N' Easy
+solar for nerds (deeper analysis for nerds)
+
+Demand-IQ, you should go through a flow where you place the panels on the roof, preparing your report...
+scanning...
+you should analyze how they simplify their information and commnicate it well. Lower the amount of words.
+
+roofr.com is the quality of roofing detail and analysis we want.
+
+![alt text](roofr.png)
+
+If we could do commercial properties (agricultural), or ground lots, that could be an extra credit differentiator. The rough estimation of the dimensions by the user could be much easier than roof installations.
+
+Add a chatbot with localized data.
+
+Add Jack's knowledge base of 10,000 urls related to energy concepts.
+
+When you get a lead, we can have a Zapier integration, when an email is sent to this email address, it triggers some action that automatically reaches out to a person. Ultimately it should automate. Not sure how to automate with the Power platform. If someone is in other states, Jack could contact a local installer and send it to them, but we need records of all of this, and we need updates along the way, we don't want the installer to run away with the lead. On the site when it says find installers, when they are in a specific locality, like Texas or Florida. Jack wants access to all the installers, and the CRM was for all of the installers. Unless Jack convinces Power to help Jack integrate and get more leads to their network, that's the only way to get that going. Otherwise it will have to be local installer relationships.
+
+Integrate with Subhub or GoHighLevel
+
+Later on after we scrape the data from the websites with localized data, we don't want to give the user right off the bat, maybe we give the installer which things will apply to them to add value.
+
+One of the associates of Jack, he's a classmate, the dean of his school thought Jack and him should know each other. This guy is a senior engineer at icon that 3d prints homes. He's got crazy connections with SpaceX and Tesla, he is 27 years old. Jack is trying to work with him to develop new solutions to integrate solar into the 3D printed structures. The cost of the house is much smaller, instead of $3-400 a square foot, the costs are much lower with the 3D printed houses, the per square price is $80 a square foot, which is a huge savings.
+
+Minister energy of Gabon's daughter, Jack talked with her, she got in a plane, flew to DC, heard the president of her country was coming to speak, she talked with him, today she presented today, it's community solar with the 
+Icon 3D printed low cost housing, Jack helped her assemble it. Jack is trying to be the solar guy for the Icon 3d printed housing.
+
+Durability of the materials are very strong.
+
+Jack knows someone with a motor design that does not use rare earth metals, she wants to use it for drones. Jack has talked with her, and he talked about planting trees with drones. Planting in general. Jack has a business plan for agrovoltaics, you raise the panels above what you are growing. Instead of doing crops, you can do cattle ranches. You can also have a smart dock that the drones are landing on. The drones can not just take care of animals in various ways, but they could also take care of surrounding farmland, and then return back to the dock where it's being charged and maintained, where it's strategically placed and hidden out of view in these racks. There are some really cool things that will come out of that.
+
+# Solar Estimator
+
+A Next.js application for estimating solar potential and cost savings based on location.
+
+## Project Structure
+
+The main application is in the `solarestimator` directory.
+
+## Deployment with AWS Amplify
+
+This project is configured for deployment with AWS Amplify. The `amplify.yml` file at the root of the repository contains the build configuration.
+
+### Deployment Steps
+
+1. Push your code to a Git repository (GitHub, GitLab, BitBucket)
+2. Log in to the AWS Amplify Console
+3. Choose "Host web app"
+4. Connect your repository provider and select this repository
+5. Configure the build settings:
+   - The `amplify.yml` file should be automatically detected
+   - Set any required environment variables (e.g., `NEXT_PUBLIC_GOOGLE_SOLAR_API_KEY`)
+6. Click "Save and deploy"
+
+### Environment Variables
+
+Make sure to set the following environment variables in the Amplify Console:
+
+- `NEXT_PUBLIC_GOOGLE_SOLAR_API_KEY`: Your Google Solar API key
+
+### Troubleshooting Deployment
+
+If deployment fails:
+
+1. Check the build logs in the Amplify Console
+2. Ensure all required environment variables are set
+3. Verify that linting and type checking pass locally
+
+## Local Development
+
+```bash
+cd solarestimator
+npm install
+npm run dev
+```
+
+## Build Commands
+
+```bash
+# Run linting
+npm run lint
+
+# Run type checking
+npm run typecheck
+
+# Build for production
+npm run build
+```

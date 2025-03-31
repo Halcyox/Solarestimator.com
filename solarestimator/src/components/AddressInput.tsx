@@ -1,3 +1,4 @@
+<<<<<<< Updated upstream
 import { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import TextField from '@mui/material/TextField';
@@ -185,8 +186,115 @@ export const AddressInput = ({ onSubmit, onChange, initialAddress = '', initialB
         address: selectedAddress,
         bill: Number(newBill),
       });
+=======
+import React, { useEffect, useState, useRef, useCallback } from 'react';
+
+export interface AddressInputProps {
+  initialAddress?: string;
+  onAddressSelect: (address: string | null) => void;
+}
+
+const LOG_PREFIX = "[AddressInput]";
+
+export const AddressInput = ({ initialAddress, onAddressSelect }: AddressInputProps): JSX.Element => {
+  console.log(`${LOG_PREFIX} Component Render`);
+  const [address, setAddress] = useState<string>(initialAddress || '');
+  const [isPlaceSelected, setIsPlaceSelected] = useState<boolean>(!!initialAddress);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  // Ref to store the autocomplete instance to prevent recreation issues
+  const autocompleteRef = useRef<google.maps.places.Autocomplete | null>(null);
+
+  useEffect(() => {
+    console.log(`${LOG_PREFIX} Initial address effect run. InitialAddress:`, initialAddress);
+    if (initialAddress) {
+      setAddress(initialAddress);
+      setIsPlaceSelected(true);
+    }
+  }, [initialAddress]);
+
+  // Initialize Autocomplete - Now we can assume Google Maps is available
+  // TODO: Google recommends migrating to google.maps.places.PlaceAutocompleteElement
+  // from the Autocomplete class, but the new API isn't fully documented yet.
+  // We should migrate when the new API is more widely available.
+  useEffect(() => {
+    console.log(`${LOG_PREFIX} Autocomplete Init Effect: START`);
+    
+    const isInitialized = autocompleteRef.current !== null;
+    console.log(`${LOG_PREFIX} Autocomplete Init Effect: Already initialized? ${isInitialized}`);
+
+    // Initialize ONLY if not already initialized via ref
+    if (inputRef.current && !isInitialized) {
+        console.log(`${LOG_PREFIX} Autocomplete Init Effect: CONDITIONS MET. Initializing...`);
+        try {
+             console.log(`${LOG_PREFIX} Autocomplete Init Effect: Creating Autocomplete instance...`);
+             const autocomplete = new window.google.maps.places.Autocomplete(inputRef.current, {
+                types: ['address'],
+                componentRestrictions: { country: 'us' },
+                fields: ["formatted_address"], 
+             });
+             autocompleteRef.current = autocomplete; // Store instance in ref
+             console.log(`${LOG_PREFIX} Autocomplete Init Effect: Autocomplete instance CREATED.`);
+
+             console.log(`${LOG_PREFIX} Autocomplete Init Effect: Adding place_changed listener...`);
+             autocomplete.addListener('place_changed', () => {
+                 console.log(`${LOG_PREFIX} place_changed event FIRED.`);
+                 const place = autocomplete.getPlace();
+                 if (place && place.formatted_address) {
+                    const formattedAddress = place.formatted_address;
+                    console.log(`${LOG_PREFIX} place_changed: VALID place selected:`, formattedAddress);
+                    setAddress(formattedAddress);
+                    setIsPlaceSelected(true);
+                    onAddressSelect(formattedAddress);
+                 } else {
+                    console.log(`${LOG_PREFIX} place_changed: INVALID place or no address.`);
+                    setIsPlaceSelected(false);
+                    onAddressSelect(null); 
+                 }
+             });
+             console.log(`${LOG_PREFIX} Autocomplete Init Effect: place_changed listener ADDED.`);
+             
+             // Mark the input ref attribute as well, for consistency/debugging
+             inputRef.current.setAttribute('data-autocomplete-init', 'true');
+
+         } catch (error) {
+             console.error(`${LOG_PREFIX} Autocomplete Init Effect: Error during initialization:`, error);
+         }
+    } else {
+        // Log reasons for skipping
+        if (!inputRef.current) {
+             console.log(`${LOG_PREFIX} Autocomplete Init Effect: SKIPPED (Input ref not available).`);
+        } else if (isInitialized) {
+             console.log(`${LOG_PREFIX} Autocomplete Init Effect: SKIPPED (Already initialized via ref).`);
+        }
+    }
+    console.log(`${LOG_PREFIX} Autocomplete Init Effect: END.`);
+
+  }, [onAddressSelect]);
+
+  const handleAddressChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(`${LOG_PREFIX} handleAddressChange: Value changing to:`, e.target.value);
+    const newAddress = e.target.value;
+    setAddress(newAddress);
+    if (isPlaceSelected) {
+      console.log(`${LOG_PREFIX} handleAddressChange: User typing, invalidating previous selection.`);
+      setIsPlaceSelected(false);
+      onAddressSelect(null);
+>>>>>>> Stashed changes
     }
   };
+  
+  // Add focus/blur/keydown logs
+  const handleFocus = useCallback(() => {
+      console.log(`${LOG_PREFIX} Input focused.`);
+  }, []);
+  
+  const handleBlur = useCallback(() => {
+      console.log(`${LOG_PREFIX} Input blurred.`);
+  }, []);
+  
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
+      console.log(`${LOG_PREFIX} KeyDown: ${e.key}`);
+  }, []);
 
   /**
    * Effect hook to update the selected address when the initialAddress prop changes.
@@ -199,6 +307,7 @@ export const AddressInput = ({ onSubmit, onChange, initialAddress = '', initialB
   }, [initialAddress, setValue]);
 
   return (
+<<<<<<< Updated upstream
     /**
      * Form component that contains the address and bill inputs
      * Prevents default form submission and calls onSubmit prop if provided
@@ -292,5 +401,20 @@ export const AddressInput = ({ onSubmit, onChange, initialAddress = '', initialB
         )}
       </Box>
     </form>
+=======
+    <input
+      id="address-input"
+      type="text"
+      placeholder="Enter property address"
+      ref={inputRef}
+      value={address}
+      onChange={handleAddressChange}
+      onFocus={handleFocus}
+      onBlur={handleBlur}
+      onKeyDown={handleKeyDown}
+      className="w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-primary-500 focus:border-primary-500 transition-colors input input-bordered"
+      data-autocomplete-init={autocompleteRef.current !== null ? 'true' : 'false'}
+    />
+>>>>>>> Stashed changes
   );
-};
+}

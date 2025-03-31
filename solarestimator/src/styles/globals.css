@@ -14,6 +14,7 @@
   --color-text: #212121;
   --color-accent: #FDD835; /* Lighter Yellow */
   --font-family-base: 'Roboto', sans-serif;
+  --accent-color: #0070f3;
 }
 
 /* Global Styles */
@@ -228,4 +229,351 @@ a:focus, button:focus, input:focus {
   .savings-calculator .content {
     flex-direction: row;
   }
+}
+
+/* Global custom animations */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
+}
+
+/* Custom utility classes */
+.animate-fadeIn {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.animate-slideUp {
+  animation: slideUp 0.5s ease-out;
+}
+
+/* UI Component styles */
+
+/* FormField */
+.form-field {
+  @apply w-full mb-4;
+}
+
+.form-field__label {
+  @apply block text-sm font-medium text-gray-700 mb-2;
+}
+
+.form-field__container {
+  @apply relative;
+}
+
+.form-field__error {
+  @apply mt-1 text-xs text-red-600;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* TextInput */
+.text-input {
+  @apply w-full px-4 py-2 border rounded-md shadow-sm transition-colors;
+}
+
+.text-input--default {
+  @apply border-gray-300;
+}
+
+.text-input--error {
+  @apply border-red-500;
+}
+
+/* WizardNavigation */
+.wizard-nav {
+  @apply flex justify-between w-full mt-6;
+}
+
+.wizard-nav__back-btn {
+  @apply px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors;
+}
+
+.wizard-nav__next-btn {
+  @apply px-4 py-2 rounded-md text-white transition-colors;
+  background-color: var(--accent-color, #0070f3);
+}
+
+.wizard-nav__next-btn--disabled {
+  @apply opacity-50 cursor-not-allowed;
+}
+
+/* StepContainer */
+.step-container {
+  @apply flex flex-col items-center w-full max-w-md mx-auto p-6 bg-white rounded-lg shadow-sm;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.step-container__title {
+  @apply text-2xl font-semibold mb-6 text-center;
+  color: var(--accent-color, #0070f3);
+}
+
+.step-container__content {
+  @apply w-full;
+}
+
+/* Slider */
+.custom-slider {
+  @apply w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer;
+}
+
+.custom-slider::-webkit-slider-thumb {
+  @apply h-4 w-4 rounded-full border-none appearance-none cursor-pointer;
+  background-color: var(--accent-color, #0070f3);
+}
+
+.custom-slider::-moz-range-thumb {
+  @apply h-4 w-4 rounded-full border-none appearance-none cursor-pointer;
+  background-color: var(--accent-color, #0070f3);
+}
+
+.custom-slider:focus {
+  @apply outline-none;
+}
+
+.custom-slider:focus::-webkit-slider-thumb {
+  @apply ring-2 ring-offset-2;
+  --tw-ring-color: var(--accent-color, #0070f3);
+}
+
+/* Step Component styles */
+
+/* AddressStep */
+.address-step {
+  @apply w-full;
+}
+
+.address-step__input-group {
+  @apply mb-4;
+}
+
+.address-step__suggestion-appear {
+  @apply transition-opacity duration-300 ease-in-out;
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+/* ElectricBillStep */
+.electric-bill-step {
+  @apply w-full;
+}
+
+.electric-bill-step__input {
+  @apply transition-all duration-200;
+}
+
+.electric-bill-step__input:focus {
+  @apply scale-105;
+  transition: transform 0.2s ease-in-out;
+}
+
+/* SystemParametersStep */
+.system-parameters-step {
+  @apply w-full;
+}
+
+.system-parameters-step__panel-input {
+  @apply mb-4;
+}
+
+.system-parameters-step__slider-group {
+  @apply mb-4;
+}
+
+.system-parameters-step__slider-label {
+  @apply flex items-center;
+}
+
+.system-parameters-step__slider-value {
+  @apply ml-2 text-sm font-semibold;
+  color: var(--accent-color, #0070f3);
+}
+
+.system-parameters-step__slider-help {
+  @apply text-xs text-gray-500 ml-2;
+}
+
+/* FinancingOptionsStep */
+.financing-options-step {
+  @apply w-full;
+}
+
+.financing-options-step__select {
+  @apply transition-all duration-200;
+}
+
+.financing-options-step__select:focus {
+  @apply ring-2 ring-opacity-50;
+  --tw-ring-color: var(--accent-color, #0070f3);
+}
+
+.financing-options-step__option {
+  @apply py-2;
+}
+
+.financing-options-step__option:hover {
+  @apply bg-gray-100;
+}
+
+/* ResultsStep */
+.results-step {
+  @apply w-full max-w-4xl mx-auto;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.results-step__loading {
+  @apply w-full text-center;
+}
+
+.results-step__loading-spinner {
+  @apply flex justify-center my-8;
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+.results-step__loading-dot {
+  @apply h-10 w-10 bg-gray-200 rounded-full;
+}
+
+.results-step__error {
+  @apply text-red-600 mb-6;
+}
+
+.results-step__empty {
+  @apply mb-6 text-gray-600;
+}
+
+.results-step__back-button {
+  @apply mt-6 flex justify-start;
+}
+
+/* Main component styles */
+
+/* AddressInput */
+.address-input {
+  @apply w-full;
+}
+
+.address-input__field {
+  @apply w-full px-4 py-2 border border-gray-300 rounded-md shadow-sm transition-colors;
+}
+
+/* Google Maps Autocomplete custom styling */
+.pac-container {
+  @apply rounded-md shadow-lg border border-gray-200 mt-1 bg-white z-50;
+}
+
+.pac-item {
+  @apply px-4 py-2 cursor-pointer hover:bg-gray-100 transition-colors;
+  display: flex;
+  align-items: center;
+}
+
+.pac-item-selected, .pac-item:hover {
+  @apply bg-gray-100;
+}
+
+.pac-icon {
+  @apply mr-2;
+}
+
+.pac-item-query {
+  @apply text-gray-800 font-medium;
+}
+
+.pac-matched {
+  @apply font-semibold;
+}
+
+/* Wizard */
+.wizard {
+  @apply flex flex-col items-center justify-center min-h-screen p-4;
+}
+
+.wizard__loading {
+  @apply text-center p-4;
+}
+
+.wizard__error {
+  @apply text-center p-4 text-red-600;
+}
+
+.wizard__step-container {
+  @apply w-full max-w-md p-4;
+}
+
+/* Wizard step transitions */
+.wizard__step-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.wizard__step-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.wizard__step-exit {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.wizard__step-exit-active {
+  opacity: 0;
+  transform: translateY(-10px);
+  transition: opacity 300ms, transform 300ms;
+}
+
+/* SolarEstimator */
+.solar-estimator {
+  @apply container mt-8 p-6 bg-white rounded-lg shadow-md;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.solar-estimator__title {
+  @apply text-2xl font-semibold mb-4 text-center;
+  color: var(--accent-color, #0070f3);
+}
+
+.solar-estimator__section {
+  @apply mt-6 border-t border-gray-200 pt-4;
+}
+
+.solar-estimator__error {
+  @apply text-center p-4 text-red-600;
+}
+
+.solar-estimator__loading {
+  @apply text-center p-4;
+}
+
+.solar-estimator__results-grid {
+  @apply grid grid-cols-1 md:grid-cols-2 gap-6 mt-4;
+}
+
+.solar-estimator__result-card {
+  @apply p-4 border border-gray-200 rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow;
+}
+
+.solar-estimator__result-title {
+  @apply text-lg font-medium mb-2;
+  color: var(--accent-color, #0070f3);
+}
+
+.solar-estimator__result-value {
+  @apply text-2xl font-bold;
+  color: var(--accent-color, #0070f3);
 }
