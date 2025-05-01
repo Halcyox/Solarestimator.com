@@ -220,7 +220,7 @@ export const AddressInput = ({ onAddressSelect, initialAddress = '' }: AddressIn
                 },
               }}
             >
-              <Box sx={{ fontWeight: 'medium' }}>{suggestion.structured_formatting.main_text}</Box>
+              <Box sx={{ fontWeight: 'medium', color: 'text.primary' }}>{suggestion.structured_formatting.main_text}</Box>
               <Box sx={{ fontSize: '0.875rem', color: 'text.secondary' }}>
                 {suggestion.structured_formatting.secondary_text}
               </Box>

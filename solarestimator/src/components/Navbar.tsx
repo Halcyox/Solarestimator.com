@@ -11,9 +11,6 @@ const Navbar = () => {
           SolarEstimator
         </Link>
         <div className="flex gap-4 items-center mt-4 sm:mt-0 w-full sm:w-auto justify-end">
-          <Link href="/estimate" className="bg-white text-orange-500 px-6 py-2 rounded-full hover:bg-orange-100 transition-colors duration-300 ease-in-out transform hover:scale-105 font-semibold">
-            Get Estimate
-          </Link>
           <Link href="/about" className="text-white hover:text-orange-100 transition-colors duration-300">
             About Us
           </Link>

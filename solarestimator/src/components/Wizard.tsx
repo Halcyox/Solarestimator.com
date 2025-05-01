@@ -23,6 +23,11 @@ export interface WizardData {
   fetchSolarError?: string | null;
 }
 
+// Define WizardProps interface
+interface WizardProps {
+  initialAddress?: string; // Add optional initialAddress prop
+}
+
 // Define StepProps type WITHOUT mapsApiStatus
 interface StepProps {
     nextStep: () => void;
@@ -58,10 +63,11 @@ const renderWizardStep = (status: Status, currentStep: number, stepProps: StepPr
     }
 };
 
-const Wizard = () => {
+// Update Wizard component to accept props
+const Wizard: React.FC<WizardProps> = ({ initialAddress }) => {
   const [step, setStep] = useState<number>(1);
   const [data, setData] = useState<WizardData>({
-    address: '',
+    address: initialAddress || '', // Use initialAddress if provided
     bill: 0,
     numberOfPanels: 20,
     shadingFactor: 90,
@@ -72,6 +78,16 @@ const Wizard = () => {
     isFetchingSolarData: false,
     fetchSolarError: null,
   });
+
+  // Move step to 2 if initial address is provided and valid
+  // (Consider adding more robust validation if needed)
+  useEffect(() => {
+    if (initialAddress && step === 1) {
+      // Potentially validate address further here before moving step
+      setStep(2); // Move to the next step (Electric Bill)
+    }
+    // Dependency array includes initialAddress and step
+  }, [initialAddress, step]); 
 
   const nextStep = useCallback(() => setStep((prev) => prev + 1), []);
   const prevStep = useCallback(() => setStep((prev) => prev - 1), []);
@@ -143,7 +159,7 @@ const Wizard = () => {
     } else if (!data.address && data.solarData) {
       updateData({ solarData: null, totalEnergyProductionPerYearKwh: null, fetchSolarError: null });
     }
-  }, [data.address, data.numberOfPanels, data.shadingFactor, data.tiltFactor, step]);
+  }, [data.address, data.numberOfPanels, data.shadingFactor, data.tiltFactor, step, updateData]);
 
   const mapsApiKey = process.env.NEXT_PUBLIC_GOOGLE_GEOCODE_API_KEY;
 

@@ -1,6 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    output: 'export', // Use static export mode
     eslint: {
       ignoreDuringBuilds: true, // Optional: Ignore linting errors
     },
