@@ -5,33 +5,15 @@ applications:
       phases:
         preBuild:
           commands:
-            - echo "Installing dependencies..."
             - npm install
         build:
           commands:
-            - echo "Running linting check..."
-            - npm run lint || echo "Linting failed but continuing build"
-            - echo "Running type check..."
-            - npm run typecheck || echo "Type checking failed but continuing build"
-            - echo "Building application..."
             - npm run build
-            - echo "Verifying build output..."
-            - ls -la .next
       artifacts:
         baseDirectory: .next
         files:
           - '**/*'
-        discard-paths: no
       cache:
         paths:
           - node_modules/**/*
-          - .next/cache/**/*
-      customHeaders:
-        - pattern: '**/*.html'
-          headers:
-            - key: 'Cache-Control'
-              value: 'public, max-age=0, must-revalidate'
-        - pattern: '_next/static/**/*'
-          headers:
-            - key: 'Cache-Control'
-              value: 'public, max-age=31536000, immutable' 
+          - .next/cache/**/* 
