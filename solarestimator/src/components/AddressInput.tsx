@@ -191,7 +191,7 @@ export const AddressInput = ({ onAddressSelect, initialAddress = '' }: AddressIn
             top: '100%', // Position below the input field
             left: 0,
             right: 0,
-            zIndex: 10, // Ensure suggestions are on top
+            zIndex: 50, // Increased z-index to ensure it appears above chatbot
             mt: 0.5,
             maxHeight: '200px',
             overflowY: 'auto',

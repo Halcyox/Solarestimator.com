@@ -3,7 +3,7 @@ import { SparklesIcon } from '@heroicons/react/24/solid'; // Using solid sparkle
 
 export const ChatbotMockup: React.FC = () => {
   return (
-    <div className="mt-6 max-w-md mx-auto">
+    <div className="mt-6 max-w-md mx-auto relative z-10">
       <div className="flex items-start space-x-3">
         {/* Bot Icon */}
         <div className="flex-shrink-0 w-10 h-10 rounded-full bg-gradient-to-br from-orange-400 to-yellow-400 flex items-center justify-center shadow-md">
@@ -15,7 +15,7 @@ export const ChatbotMockup: React.FC = () => {
           <div className="absolute -left-2 top-2 w-0 h-0 border-t-8 border-t-transparent border-b-8 border-b-transparent border-r-8 border-r-gray-100"></div> 
           
           <p className="font-sans text-sm text-gray-700 leading-relaxed">
-            Hi, I'm <strong className="font-semibold text-orange-600">Solar</strong>! 👋 Need help? Ask me anything about your estimate or how our AI can guide you to the best solar solution and save you money!
+            Hi, I&apos;m <strong className="font-semibold text-orange-600">Solar</strong>! 👋 Need help? Ask me anything about your estimate or how our AI can guide you to the best solar solution and save you money!
           </p>
            {/* Mock Input Area */}
            <div className="mt-3 border-t border-gray-200 pt-2">

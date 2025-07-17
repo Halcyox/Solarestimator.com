@@ -42,7 +42,7 @@ export const HeroSection: React.FC = () => {
 
           {/* Form / Input & Chatbot */}
           <div className="md:col-span-5 lg:col-span-6">
-            <div className="bg-white/95 backdrop-blur-md rounded-lg p-6 md:p-8 shadow-xl border border-white/30 max-w-md mx-auto">
+            <div className="bg-white/95 backdrop-blur-md rounded-lg p-6 md:p-8 shadow-xl border border-white/30 max-w-md mx-auto relative z-20">
               <h3 className="font-heading text-xl font-semibold mb-4 text-center text-gray-800">Get Your Free Estimate</h3>
               <AddressInput onAddressSelect={handleAddressSelected} />
               <p className="text-xs text-gray-600 mt-4 text-center flex items-center justify-center">
@@ -51,7 +51,9 @@ export const HeroSection: React.FC = () => {
               </p>
             </div>
 
-            <ChatbotMockup />
+            <div className="mt-8">
+              <ChatbotMockup />
+            </div>
           </div>
         </div>
       </div>

@@ -2,7 +2,7 @@ const Footer = () => {
   return (
     <footer className="bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 text-white text-center p-6 mt-8">
       <div className="container mx-auto">
-        <p className="text-lg font-semibold">© 2024 SolarEstimator. All rights reserved.</p>
+        <p className="text-lg font-semibold">© 2025 SolarEstimator. All rights reserved.</p>
         <p className="mt-2 text-sm">Helping you save money and the planet, one solar panel at a time.</p>
         <div className="mt-4 flex justify-center space-x-4">
           <a href="#" className="hover:text-yellow-300 transition-colors duration-300">

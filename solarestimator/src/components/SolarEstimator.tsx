@@ -13,6 +13,7 @@ interface SolarEstimatorProps {
   shadingFactor: number;
   tiltFactor: number;
   financingOption: FinancingOption;
+  onFinancingOptionChange?: (option: FinancingOption) => void;
 }
 
 const SolarEstimator: React.FC<SolarEstimatorProps> = (props) => {
@@ -24,43 +25,82 @@ const SolarEstimator: React.FC<SolarEstimatorProps> = (props) => {
     shadingFactor,
     tiltFactor,
     financingOption,
+    onFinancingOptionChange,
   } = props;
 
   if (!solarData) {
-    return <div className="text-center p-4 text-red-600">Error: Solar data is missing.</div>;
+    return (
+      <div className="text-center p-8 bg-gradient-to-br from-red-50 to-red-100 rounded-lg shadow-lg">
+        <div className="text-red-600 text-lg font-semibold mb-2">⚠️ Error</div>
+        <div className="text-red-500">Solar data is missing. Please try again.</div>
+      </div>
+    );
   }
 
   const dummyHandler = () => {};
 
   return (
-    <div className="container mt-8 p-6 bg-white rounded-lg shadow-md animate-fadeIn">
-      <h2 className="text-2xl font-semibold mb-4 text-center text-accent-color">
-        Your Solar Estimate
-      </h2>
+    <div className="max-w-6xl mx-auto p-4 space-y-6">
+      {/* Header Section */}
+      <div className="text-center mb-8">
+        <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
+          Your Solar Estimate
+        </h1>
+        <p className="text-gray-600 text-lg max-w-2xl mx-auto">
+          Personalized analysis based on your property and energy usage
+        </p>
+      </div>
 
-      <RoofVisualization
-        latitude={solarData.latitude}
-        longitude={solarData.longitude}
-        roofSegments={solarData.roofSegmentStats ?? []}
-        numberOfPanels={numberOfPanels}
-        shadingFactor={shadingFactor}
-        tiltFactor={tiltFactor}
-        apiKey={process.env.NEXT_PUBLIC_GOOGLE_SOLAR_API_KEY ?? ''}
-      />
+      {/* Roof Visualization Section */}
+      <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-100">
+          <h2 className="text-xl font-semibold text-gray-800 flex items-center">
+            🏠 Roof Analysis & Panel Layout
+          </h2>
+          <p className="text-sm text-gray-600 mt-1">
+            Interactive visualization of your roof segments and optimal solar panel placement
+          </p>
+        </div>
+        <div className="p-6">
+          <RoofVisualization
+            latitude={solarData.latitude}
+            longitude={solarData.longitude}
+            roofSegments={solarData.roofSegmentStats ?? []}
+            numberOfPanels={numberOfPanels}
+            shadingFactor={shadingFactor}
+            tiltFactor={tiltFactor}
+            apiKey={process.env.NEXT_PUBLIC_GOOGLE_SOLAR_API_KEY ?? ''}
+          />
+        </div>
+      </div>
 
-      <SavingsCalculator
-        solarData={solarData}
-        bill={bill}
-        totalEnergyProductionPerYearKwh={totalEnergyProductionPerYearKwh}
-        numberOfPanels={numberOfPanels}
-        shadingFactor={shadingFactor}
-        tiltFactor={tiltFactor}
-        financingOption={financingOption}
-        onPanelChange={dummyHandler}
-        onShadingChange={dummyHandler}
-        onTiltChange={dummyHandler}
-        onYearChange={dummyHandler}
-      />
+      {/* Savings Calculator Section */}
+      <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
+        <div className="bg-gradient-to-r from-green-50 to-emerald-50 px-6 py-4 border-b border-gray-100">
+          <h2 className="text-xl font-semibold text-gray-800 flex items-center">
+            💰 Financial Analysis & Savings
+          </h2>
+          <p className="text-sm text-gray-600 mt-1">
+            Detailed breakdown of costs, savings, and return on investment
+          </p>
+        </div>
+        <div className="p-6">
+          <SavingsCalculator
+            solarData={solarData}
+            bill={bill}
+            totalEnergyProductionPerYearKwh={totalEnergyProductionPerYearKwh}
+            numberOfPanels={numberOfPanels}
+            shadingFactor={shadingFactor}
+            tiltFactor={tiltFactor}
+            financingOption={financingOption}
+            onFinancingOptionChange={onFinancingOptionChange}
+            onPanelChange={dummyHandler}
+            onShadingChange={dummyHandler}
+            onTiltChange={dummyHandler}
+            onYearChange={dummyHandler}
+          />
+        </div>
+      </div>
     </div>
   );
 };

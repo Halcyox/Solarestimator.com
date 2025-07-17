@@ -216,94 +216,245 @@ const SavingsCalculatorSummary: React.FC<SavingsCalculatorSummaryProps> = ({
   milesDrivenEquivalent,
 }) => {
   return (
-    <Box sx={{ width: '100%' }}>
-      <Typography variant="h5" gutterBottom sx={{ mb: 4, textAlign: 'center', fontWeight: 'bold' }}>
+    <Box sx={{ 
+      width: '100%', 
+      p: 1,
+      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      borderRadius: 2,
+      boxShadow: '0 8px 32px rgba(0,0,0,0.1)',
+      border: '1px solid rgba(255,255,255,0.2)'
+    }}>
+      <Typography variant="h6" sx={{ 
+        mb: 1, 
+        textAlign: 'center', 
+        fontWeight: 'bold',
+        color: 'white',
+        textShadow: '0 2px 4px rgba(0,0,0,0.3)'
+      }}>
         Solar Investment Summary
       </Typography>
       
-      <Grid container spacing={3}>
-        {/* Financial Metrics */}
-        <SectionTitle title="Financial Impact" />
-        <Grid item xs={12} sm={6} md={3}>
-          <SummaryItem
-            icon={<AttachMoney fontSize="large" />}
-            title="Total Lifetime Savings"
-            value={formatCurrency(totalSavings)}
-          />
+      <Grid container spacing={0.5}>
+        {/* Primary Financial Metrics - Most Important */}
+        <Grid item xs={12}>
+          <Typography variant="subtitle2" sx={{ 
+            color: 'white', 
+            fontWeight: 'bold', 
+            mb: 0.5,
+            textShadow: '0 1px 2px rgba(0,0,0,0.3)'
+          }}>
+            💰 Your Savings
+          </Typography>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <SummaryItem
-            icon={<AccessTime fontSize="large" />}
-            title="Payback Period"
-            value={formatPaybackPeriod(paybackPeriod)}
-          />
+        
+        {/* Monthly Impact - What you'll see immediately */}
+        <Grid item xs={6}>
+          <Box sx={{
+            background: 'rgba(255,255,255,0.95)',
+            borderRadius: 1,
+            p: 1,
+            textAlign: 'center',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            border: '1px solid rgba(255,255,255,0.3)'
+          }}>
+            <Savings sx={{ color: '#4CAF50', fontSize: '1.2rem', mb: 0.5 }} />
+            <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#2E7D32' }}>
+              {formatCurrency(Math.abs(monthlySaving))}
+            </Typography>
+            <Typography variant="caption" sx={{ color: '#666' }}>
+              Monthly Savings
+            </Typography>
+          </Box>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <SummaryItem
-            icon={<AttachMoney fontSize="large" />}
-            title="Monthly Solar Payment"
-            value={formatCurrency(Math.abs(monthlyPayment))}
-          />
+        <Grid item xs={6}>
+          <Box sx={{
+            background: 'rgba(255,255,255,0.95)',
+            borderRadius: 1,
+            p: 1,
+            textAlign: 'center',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            border: '1px solid rgba(255,255,255,0.3)'
+          }}>
+            <AttachMoney sx={{ color: '#2196F3', fontSize: '1.2rem', mb: 0.5 }} />
+            <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#1565C0' }}>
+              {formatCurrency(Math.abs(monthlyPayment))}
+            </Typography>
+            <Typography variant="caption" sx={{ color: '#666' }}>
+              Monthly Payment
+            </Typography>
+          </Box>
         </Grid>
-        <Grid item xs={12} sm={6} md={3}>
-          <SummaryItem
-            icon={<Savings fontSize="large" />}
-            title="Monthly Bill Savings"
-            value={formatCurrency(Math.abs(monthlySaving))}
-            subtitle="vs Current Bill"
-          />
+        
+        {/* Long-term Impact */}
+        <Grid item xs={6}>
+          <Box sx={{
+            background: 'rgba(255,255,255,0.95)',
+            borderRadius: 1,
+            p: 1,
+            textAlign: 'center',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            border: '1px solid rgba(255,255,255,0.3)'
+          }}>
+            <AttachMoney sx={{ color: '#4CAF50', fontSize: '1.2rem', mb: 0.5 }} />
+            <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#2E7D32' }}>
+              {formatCurrency(totalSavings)}
+            </Typography>
+            <Typography variant="caption" sx={{ color: '#666' }}>
+              25-Year Savings
+            </Typography>
+          </Box>
         </Grid>
-
-        {/* System Capacity */}
-        <SectionTitle title="System Capacity" />
-        <Grid item xs={12} sm={6} md={4}>
-          <SummaryItem
-            icon={<BoltOutlined fontSize="large" />}
-            title="Annual Energy Production"
-            value={`${formatLargeNumber(annualKwhProduction)} kWh`}
-          />
+        <Grid item xs={6}>
+          <Box sx={{
+            background: 'rgba(255,255,255,0.95)',
+            borderRadius: 1,
+            p: 1,
+            textAlign: 'center',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            border: '1px solid rgba(255,255,255,0.3)'
+          }}>
+            <AccessTime sx={{ color: '#FF9800', fontSize: '1.2rem', mb: 0.5 }} />
+            <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#E65100' }}>
+              {formatPaybackPeriod(paybackPeriod)}
+            </Typography>
+            <Typography variant="caption" sx={{ color: '#666' }}>
+              Payback Time
+            </Typography>
+          </Box>
         </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          <SummaryItem
-            icon={<Straighten fontSize="large" />}
-            title="Available Roof Area"
-            value={`${Math.round(totalRoofArea)} m²`}
-          />
+        
+        {/* System Performance */}
+        <Grid item xs={12}>
+          <Typography variant="subtitle2" sx={{ 
+            color: 'white', 
+            fontWeight: 'bold', 
+            mb: 0.5,
+            mt: 1,
+            textShadow: '0 1px 2px rgba(0,0,0,0.3)'
+          }}>
+            ⚡ System Performance
+          </Typography>
         </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          <SummaryItem
-            icon={<SolarPower fontSize="large" />}
-            title="Solar Panel Capacity"
-            value={`${currentPanels} / ${maxPossiblePanels}`}
-            subtitle="Current / Maximum"
-          />
+        <Grid item xs={4}>
+          <Box sx={{
+            background: 'rgba(255,255,255,0.95)',
+            borderRadius: 1,
+            p: 1,
+            textAlign: 'center',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            border: '1px solid rgba(255,255,255,0.3)'
+          }}>
+            <BoltOutlined sx={{ color: '#FFC107', fontSize: '1.2rem', mb: 0.5 }} />
+            <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#F57F17' }}>
+              {formatLargeNumber(annualKwhProduction)} kWh
+            </Typography>
+            <Typography variant="caption" sx={{ color: '#666' }}>
+              Annual Production
+            </Typography>
+          </Box>
         </Grid>
-
+        <Grid item xs={4}>
+          <Box sx={{
+            background: 'rgba(255,255,255,0.95)',
+            borderRadius: 1,
+            p: 1,
+            textAlign: 'center',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            border: '1px solid rgba(255,255,255,0.3)'
+          }}>
+            <SolarPower sx={{ color: '#FF9800', fontSize: '1.2rem', mb: 0.5 }} />
+            <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#E65100' }}>
+              {currentPanels} / {maxPossiblePanels}
+            </Typography>
+            <Typography variant="caption" sx={{ color: '#666' }}>
+              Panels Used
+            </Typography>
+          </Box>
+        </Grid>
+        <Grid item xs={4}>
+          <Box sx={{
+            background: 'rgba(255,255,255,0.95)',
+            borderRadius: 1,
+            p: 1,
+            textAlign: 'center',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            border: '1px solid rgba(255,255,255,0.3)'
+          }}>
+            <Straighten sx={{ color: '#9C27B0', fontSize: '1.2rem', mb: 0.5 }} />
+            <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#6A1B9A' }}>
+              {Math.round(totalRoofArea)} m²
+            </Typography>
+            <Typography variant="caption" sx={{ color: '#666' }}>
+              Roof Space
+            </Typography>
+          </Box>
+        </Grid>
+        
         {/* Environmental Impact */}
-        <SectionTitle title="Environmental Impact" />
-        <Grid item xs={12} sm={6} md={4}>
-          <SummaryItem
-            icon={<Co2 fontSize="large" />}
-            title="CO2 Reduction"
-            value={`${formatLargeNumber(co2Reduction)} kg`}
-            subtitle={`Equal to ${formatLargeNumber(treesEquivalent)} trees`}
-          />
+        <Grid item xs={12}>
+          <Typography variant="subtitle2" sx={{ 
+            color: 'white', 
+            fontWeight: 'bold', 
+            mb: 0.5,
+            mt: 1,
+            textShadow: '0 1px 2px rgba(0,0,0,0.3)'
+          }}>
+            🌱 Environmental Impact
+          </Typography>
         </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          <SummaryItem
-            icon={<LocalGasStation fontSize="large" />}
-            title="Gasoline Savings"
-            value={`${formatLargeNumber(gallonsGasSaved)} gal`}
-            subtitle="Equivalent Savings"
-          />
+        <Grid item xs={4}>
+          <Box sx={{
+            background: 'rgba(255,255,255,0.95)',
+            borderRadius: 1,
+            p: 1,
+            textAlign: 'center',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            border: '1px solid rgba(255,255,255,0.3)'
+          }}>
+            <Co2 sx={{ color: '#4CAF50', fontSize: '1.2rem', mb: 0.5 }} />
+            <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#2E7D32' }}>
+              {Math.round(co2Reduction)} kg
+            </Typography>
+            <Typography variant="caption" sx={{ color: '#666' }}>
+              CO2 Reduced
+            </Typography>
+          </Box>
         </Grid>
-        <Grid item xs={12} sm={6} md={4}>
-          <SummaryItem
-            icon={<DirectionsCar fontSize="large" />}
-            title="Miles Not Driven"
-            value={`${formatLargeNumber(milesDrivenEquivalent)} mi`}
-            subtitle="Equivalent Impact"
-          />
+        <Grid item xs={4}>
+          <Box sx={{
+            background: 'rgba(255,255,255,0.95)',
+            borderRadius: 1,
+            p: 1,
+            textAlign: 'center',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            border: '1px solid rgba(255,255,255,0.3)'
+          }}>
+            <LocalGasStation sx={{ color: '#FF5722', fontSize: '1.2rem', mb: 0.5 }} />
+            <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#D84315' }}>
+              {Math.round(gallonsGasSaved)} gal
+            </Typography>
+            <Typography variant="caption" sx={{ color: '#666' }}>
+              Gas Saved
+            </Typography>
+          </Box>
+        </Grid>
+        <Grid item xs={4}>
+          <Box sx={{
+            background: 'rgba(255,255,255,0.95)',
+            borderRadius: 1,
+            p: 1,
+            textAlign: 'center',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+            border: '1px solid rgba(255,255,255,0.3)'
+          }}>
+            <DirectionsCar sx={{ color: '#607D8B', fontSize: '1.2rem', mb: 0.5 }} />
+            <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#37474F' }}>
+              {Math.round(milesDrivenEquivalent / 10) / 100}k mi
+            </Typography>
+            <Typography variant="caption" sx={{ color: '#666' }}>
+              Miles Offset
+            </Typography>
+          </Box>
         </Grid>
       </Grid>
     </Box>

@@ -1,6 +1,7 @@
 // SavingsCalculator.tsx
 import React, { useState, useEffect } from 'react';
-import { Grid, Container, Paper, Tabs, Tab, Box } from '@mui/material';
+import { Grid, Container, Paper, Tabs, Tab, Box, Typography } from '@mui/material';
+import { TrendingUp, Settings, Timeline, AttachMoney, Calculate } from '@mui/icons-material';
 import SystemConfiguration from './SavingsCalculator/SystemConfiguration';
 import FinancialInputs from './SavingsCalculator/FinancialInputs';
 import EfficiencyFactors from './SavingsCalculator/EfficiencyFactors';
@@ -32,48 +33,28 @@ const LEASE_COST_PER_YEAR = 1000; // Lease cost per year
 const KG_CO2_PER_KWH = 0.385; // EPA average US grid emissions factor
 const KG_CO2_OFFSET_PER_TREE = 21.7; // EPA estimate per urban tree per year
 const GALLONS_GASOLINE_PER_KWH = 0.0892; // EPA conversion factor
-const MILES_DRIVEN_PER_KWH = 2.24; // EPA average for passenger vehicles
-
-interface SavingsCalculatorProps {
-  solarData: {
-    maxArrayPanelsCount?: number;
-    maxArrayAreaMeters2?: number;
-    maxSunshineHoursPerYear?: number;
-    carbonOffsetFactorKgPerMwh?: number;
-    roofSegmentStats?: any[];
-  } | null;
-  bill: number;
-  totalEnergyProductionPerYearKwh: number | null;
-  numberOfPanels: number;
-  shadingFactor: number;
-  tiltFactor: number;
-  financingOption: FinancingOption;
-  onPanelChange: (panels: number) => void;
-  onShadingChange: (shading: number) => void;
-  onTiltChange: (tilt: number) => void;
-  onYearChange: (years: number) => void;
-}
-
-interface SummaryData {
-  totalSavings: number;
-  paybackPeriod: number;
-  monthlyPayment: number;
-  monthlySaving: number;
-  co2Reduction: number;
-  treesEquivalent: number;
-  annualKwhProduction: number;
-  totalRoofArea: number;
-  maxPossiblePanels: number;
-  currentPanels: number;
-  gallonsGasSaved: number;
-  milesDrivenEquivalent: number;
-}
+const MILES_DRIVEN_PER_KWH = 2.24;
 
 interface RoofSegment {
   tiltAngle: number;
   azimuth: number;
   shadingFactor: number;
   area: number;
+}
+
+interface SavingsCalculatorProps {
+  solarData: SolarData;
+  bill: number;
+  totalEnergyProductionPerYearKwh: number | null;
+  numberOfPanels: number;
+  shadingFactor: number;
+  tiltFactor: number;
+  financingOption: FinancingOption;
+  onPanelChange: (value: number) => void;
+  onShadingChange: (value: number) => void;
+  onTiltChange: (value: number) => void;
+  onYearChange: (value: number) => void;
+  onFinancingOptionChange?: (option: FinancingOption) => void;
 }
 
 const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({
@@ -88,6 +69,7 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({
   onShadingChange,
   onTiltChange,
   onYearChange,
+  onFinancingOptionChange,
 }) => {
   // System Configuration State
   const [panelCount, setPanelCount] = useState(numberOfPanels); 
@@ -126,31 +108,17 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({
 
   // Energy Usage Profile State
   const [monthlyBill, setMonthlyBill] = useState(bill);
-  const [utilityRate, setUtilityRate] = useState(0.15); // Updated to reflect current average rates
+  const [annualUsage, setAnnualUsage] = useState(bill * 12);
+  const [utilityRate, setUtilityRate] = useState(0.12);
 
-  // Cost Factors State
-  const [maintenanceCost, setMaintenanceCost] = useState(200);
-  const [inflationRate, setInflationRate] = useState(2.5);
-  const [utilityInflationRate, setUtilityInflationRate] = useState(3.5); // Updated to more realistic rate
-
-  // Projection Years State
+  // Timeline and Projection State
   const [projectionYears, setProjectionYears] = useState(25);
+  const [inflationRate, setInflationRate] = useState(2.9);
+  const [utilityInflationRate, setUtilityInflationRate] = useState(3.5);
+  const [maintenanceCost, setMaintenanceCost] = useState(200);
 
-  // Calculated Results
-  const [savingsData, setSavingsData] = useState({
-    years: Array.from({ length: 25 }, (_, i) => i + 1),
-    cumulativeSavings: Array(25).fill(0),
-    cumulativeCosts: Array(25).fill(0),
-    monthlyPayments: Array(25).fill(0),
-    utilityBills: Array(25).fill(0),
-  });
-
-  const [environmentalData, setEnvironmentalData] = useState({
-    co2Reduction: Array(25).fill(0),
-    treesEquivalent: Array(25).fill(0),
-  });
-
-  const [summaryData, setSummaryData] = useState<SummaryData>({
+  // Summary Data State
+  const [summaryData, setSummaryData] = useState({
     totalSavings: 0,
     paybackPeriod: 0,
     monthlyPayment: 0,
@@ -165,66 +133,22 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({
     milesDrivenEquivalent: 0
   });
 
+  // Chart Data State
+  const [savingsData, setSavingsData] = useState({
+    years: [] as number[],
+    cumulativeSavings: [] as number[],
+    cumulativeCosts: [] as number[],
+    monthlyPayments: [] as number[],
+    utilityBills: [] as number[]
+  });
+
+  // Tab State
   const [activeTab, setActiveTab] = useState(0);
 
-  useEffect(() => {
-    // Calculate savings and environmental impact
-    console.log('Recalculating with updated parameters:', {
-      panelCount,
-      panelType,
-      inverterType,
-      hasBattery,
-      financingOption,
-      loanTerm,
-      interestRate,
-      downPayment,
-      incentivePercentage,
-      monthlyBill,
-      utilityRate,
-      maintenanceCost,
-      inflationRate,
-      utilityInflationRate,
-      projectionYears,
-    });
-
-    // Update parent component with panel count change
-    onPanelChange(panelCount);
-
-    // Update parent with shading factor change
-    onShadingChange(weightedShadingFactor);
-
-    // Update parent with tilt angle change
-    onTiltChange(weightedTiltAngle);
-
-    // Update parent with projection years change
-    onYearChange(projectionYears);
-
-    // Call calculation function
-    calculateSavings();
-  }, [
-    panelCount,
-    panelType,
-    inverterType,
-    hasBattery,
-    financingOption,
-    loanTerm,
-    interestRate,
-    downPayment,
-    incentivePercentage,
-    monthlyBill,
-    utilityRate,
-    maintenanceCost,
-    inflationRate,
-    utilityInflationRate,
-    projectionYears,
-    weightedShadingFactor,
-    weightedTiltAngle,
-    totalEnergyProductionPerYearKwh,
-  ]);
-
-  // Handler functions
+  // Handlers
   const handlePanelCountChange = (value: number) => {
-    setPanelCount(Math.min(value, adjustedMaxPanels));
+    setPanelCount(value);
+    onPanelChange(value);
   };
 
   const handlePanelTypeChange = (type: PanelType) => {
@@ -235,179 +159,113 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({
     setInverterType(type);
   };
 
-  const handleBatteryChange = (value: boolean) => {
-    setHasBattery(value);
+  const handleBatteryChange = (hasBattery: boolean) => {
+    setHasBattery(hasBattery);
   };
 
-  const calculateSavings = () => {
-    console.log('=== Starting Calculations ===');
-    
-    // Calculate system size and base costs
-    const systemSizeKw = panelCount * AVERAGE_PANEL_OUTPUT_KW;
-    const panelEfficiency = PANEL_TYPES[panelType].efficiency;
-    const baseSystemCost = systemSizeKw * BASE_INSTALLATION_COST_PER_KW * PANEL_TYPES[panelType].costMultiplier;
-    
-    // Add inverter and battery costs
+  // Calculate system cost
+  const calculateSystemCost = () => {
+    const panelCost = panelCount * AVERAGE_PANEL_OUTPUT_KW * BASE_INSTALLATION_COST_PER_KW * PANEL_TYPES[panelType].costMultiplier;
     const inverterCost = INVERTER_TYPES[inverterType].cost;
     const batteryCost = hasBattery ? BATTERY_COST : 0;
-    const totalSystemCost = baseSystemCost + inverterCost + batteryCost;
+    const totalCost = panelCost + inverterCost + batteryCost;
     
-    console.log('System Cost Debug:', {
-      panelCount,
-      systemSizeKw,
-      baseSystemCost,
-      inverterCost,
-      batteryCost,
-      totalSystemCost
-    });
-    
-    // Calculate production with weighted efficiency factors
-    const tiltEfficiency = Math.cos((90 - weightedTiltAngle) * Math.PI / 180);
-    const shadingEfficiencyFactor = 1 - (weightedShadingFactor / 100);
-    
-    // Calculate yearly production with null check for solarData
-    const maxSunshineHours = solarData?.maxSunshineHoursPerYear || 1600; // Provide a default if null/undefined
-    
-    const yearlyProduction = Array(projectionYears).fill(0).map((_, year) => {
-      const degradationFactor = Math.pow(1 - PANEL_TYPES[panelType].degradationRate, year);
-      const production = systemSizeKw * maxSunshineHours * 
-        panelEfficiency * tiltEfficiency * shadingEfficiencyFactor * degradationFactor;
-      return production;
-    });
+    // Apply federal tax credit
+    const taxCredit = totalCost * (incentivePercentage / 100);
+    return totalCost - taxCredit;
+  };
 
-    // Calculate total lifetime production for environmental impact
-    const totalLifetimeProduction = yearlyProduction.reduce((sum, prod) => sum + prod, 0);
+  // Calculate annual energy production
+  const calculateAnnualProduction = () => {
+    const baseProduction = panelCount * AVERAGE_PANEL_OUTPUT_KW * 8760; // hours per year
+    const efficiencyFactor = PANEL_TYPES[panelType].efficiency;
+    const shadingFactor = weightedShadingFactor;
+    const tiltFactor = Math.cos((weightedTiltAngle - 30) * Math.PI / 180); // Optimal tilt is 30 degrees
     
-    // Calculate environmental impact
-    const co2Reduction = totalLifetimeProduction * KG_CO2_PER_KWH;
-    const treesEquivalent = co2Reduction / KG_CO2_OFFSET_PER_TREE;
-    const gallonsGasSaved = totalLifetimeProduction * GALLONS_GASOLINE_PER_KWH;
-    const milesDrivenEquivalent = totalLifetimeProduction * MILES_DRIVEN_PER_KWH;
+    return baseProduction * efficiencyFactor * shadingFactor * tiltFactor;
+  };
 
-    console.log('Environmental Impact Debug:', {
-      totalLifetimeProduction,
-      co2Reduction,
-      treesEquivalent,
-      gallonsGasSaved,
-      milesDrivenEquivalent
-    });
+  // Calculate savings over time
+  const calculateSavings = () => {
+    const systemCost = calculateSystemCost();
+    const annualProduction = calculateAnnualProduction();
+    const yearlyProduction: number[] = [];
+    const yearlyData: any[] = [];
+    const years = Array.from({ length: projectionYears }, (_, i) => i + 1);
     
-    // Calculate yearly financial data
-    const yearlyData = Array(projectionYears).fill(0).map((_, index) => {
-      const utilityInflationMultiplier = Math.pow(1 + utilityInflationRate / 100, index);
-      
-      // Calculate what utility bill would be without solar
-      const utilityBillWithoutSolar = monthlyBill * 12 * utilityInflationMultiplier;
-      const monthlyUtilityBill = utilityBillWithoutSolar / 12;
-      
-      // Calculate solar production value
-      const solarProductionValue = yearlyProduction[index] * utilityRate * utilityInflationMultiplier;
-      const monthlySolarValue = solarProductionValue / 12;
-      
-      // Calculate maintenance costs with inflation
-      const maintenanceCostForYear = maintenanceCost * Math.pow(1 + inflationRate / 100, index);
-      const monthlyMaintenance = maintenanceCostForYear / 12;
-      
-      // Calculate monthly loan payment or lease payment
-      let monthlyPaymentForYear = 0;
+    let cumulativeSavings = 0;
+    let cumulativeCosts = systemCost;
+    const monthlyPayments: number[] = [];
+    const utilityBills: number[] = [];
+
+    years.forEach((year, index) => {
+      // Calculate production with degradation
+      const degradation = Math.pow(1 - PANEL_TYPES[panelType].degradationRate, year - 1);
+      const production = annualProduction * degradation;
+      yearlyProduction.push(production);
+
+      // Calculate utility bill without solar
+      const utilityBillWithoutSolar = monthlyBill * Math.pow(1 + utilityInflationRate / 100, year - 1);
+      utilityBills.push(utilityBillWithoutSolar);
+
+      // Calculate solar payment based on financing option
+      let monthlyPayment = 0;
       if (financingOption === 'loan') {
-        const principal = totalSystemCost * (1 - incentivePercentage / 100) - downPayment;
-        const monthlyRate = interestRate / 1200; // Convert annual rate to monthly
-        monthlyPaymentForYear = principal > 0 ? (principal * monthlyRate) / (1 - Math.pow(1 + monthlyRate, -loanTerm * 12)) : 0;
-        
-        console.log('Loan Payment Debug:', {
-          totalSystemCost,
-          incentivePercentage,
-          downPayment,
-          principal,
-          monthlyRate,
-          monthlyPaymentForYear
-        });
+        const loanAmount = systemCost - (systemCost * downPayment / 100);
+        const monthlyRate = interestRate / 100 / 12;
+        const numPayments = loanTerm * 12;
+        monthlyPayment = (loanAmount * monthlyRate * Math.pow(1 + monthlyRate, numPayments)) / 
+                        (Math.pow(1 + monthlyRate, numPayments) - 1);
       } else if (financingOption === 'lease') {
-        monthlyPaymentForYear = LEASE_COST_PER_YEAR / 12;
-      } else if (financingOption === 'cash') {
-        // For cash purchase, distribute the cost over the projection period
-        const netSystemCost = totalSystemCost * (1 - incentivePercentage / 100);
-        monthlyPaymentForYear = netSystemCost / (projectionYears * 12);
+        monthlyPayment = LEASE_COST_PER_YEAR / 12;
       }
-      
-      // Calculate total monthly costs with solar (payment + maintenance)
-      const totalMonthlyCost = monthlyPaymentForYear + monthlyMaintenance;
-      
-      // Calculate monthly savings (difference between current bill and solar costs)
-      const monthlySavings = monthlyBill - totalMonthlyCost;
-      
-      console.log('Monthly Calculation Debug:', {
-        financingOption,
-        totalSystemCost,
-        monthlyPaymentForYear,
-        monthlyMaintenance,
-        totalMonthlyCost,
-        monthlySavings
+      monthlyPayments.push(monthlyPayment);
+
+      // Calculate savings
+      const annualSavings = (utilityBillWithoutSolar * 12) - (monthlyPayment * 12);
+      cumulativeSavings += annualSavings;
+      cumulativeCosts += monthlyPayment * 12;
+
+      yearlyData.push({
+        year,
+        production,
+        utilityBill: utilityBillWithoutSolar,
+        monthlyPayment,
+        monthlyMaintenance: maintenanceCost / 12,
+        annualSavings,
+        cumulativeSavings,
+        cumulativeCosts
       });
-      
-      return {
-        utilityBillWithoutSolar,
-        monthlyUtilityBill,
-        costs: totalMonthlyCost * 12,
-        savings: monthlySavings * 12,
-        monthlyPayment: monthlyPaymentForYear,
-        monthlyMaintenance,
-        monthlySavings
-      };
     });
 
-    // Now build cumulative arrays
-    const cumulativeSavings: number[] = [];
-    const cumulativeCosts: number[] = [];
-    let runningCumulativeSavings = 0;
-    let runningCumulativeCosts = financingOption === 'cash' ? totalSystemCost : downPayment;
-
-    yearlyData.forEach((yearData, index) => {
-      runningCumulativeSavings += yearData.savings;
-      runningCumulativeCosts += yearData.costs;
-      cumulativeSavings.push(runningCumulativeSavings);
-      cumulativeCosts.push(runningCumulativeCosts);
+    setSavingsData({
+      years,
+      cumulativeSavings: yearlyData.map(d => d.cumulativeSavings),
+      cumulativeCosts: yearlyData.map(d => d.cumulativeCosts),
+      monthlyPayments,
+      utilityBills
     });
 
-    // Now find breakeven point
-    let breakEvenYear = projectionYears;
+    // Calculate environmental impact
+    const totalProduction = yearlyProduction.reduce((sum, prod) => sum + prod, 0);
+    const co2Reduction = totalProduction * KG_CO2_PER_KWH;
+    const treesEquivalent = co2Reduction / KG_CO2_OFFSET_PER_TREE;
+    const gallonsGasSaved = totalProduction * GALLONS_GASOLINE_PER_KWH;
+    const milesDrivenEquivalent = totalProduction * MILES_DRIVEN_PER_KWH;
+
+    // Find breakeven point
+    let breakEvenYear = 0;
     let breakEvenMonth = 0;
-
-    for (let index = 0; index < yearlyData.length; index++) {
-      if (cumulativeSavings[index] > cumulativeCosts[index] && breakEvenYear === projectionYears) {
-        const previousYearSavings = index > 0 ? cumulativeSavings[index - 1] : 0;
-        const previousYearCosts = index > 0 ? cumulativeCosts[index - 1] : (financingOption === 'cash' ? totalSystemCost : downPayment);
-        const monthlySavings = yearlyData[index].monthlySavings;
-        const monthlyCosts = yearlyData[index].costs / 12;
-
-        // Calculate which month within this year breakeven occurs
-        let monthlyDifference = previousYearCosts - previousYearSavings;
-        for (let month = 1; month <= 12; month++) {
-          monthlyDifference += monthlyCosts - monthlySavings;
-          if (monthlyDifference <= 0) {
-            breakEvenYear = index;
-            breakEvenMonth = month;
-            break;
-          }
-        }
+    for (let i = 0; i < yearlyData.length; i++) {
+      if (yearlyData[i].cumulativeSavings >= systemCost) {
+        breakEvenYear = i + 1;
+        const remainingCost = systemCost - (i > 0 ? yearlyData[i - 1].cumulativeSavings : 0);
+        breakEvenMonth = Math.ceil(remainingCost / yearlyData[i].annualSavings * 12);
+        break;
       }
     }
 
-    // Calculate monthly values for display
-    const monthlyPayments = yearlyData.map(data => data.monthlyPayment + data.monthlyMaintenance);
-    const utilityBills = yearlyData.map(data => data.monthlyUtilityBill);
-
-    // Update states
-    setSavingsData({
-      years: Array.from({ length: projectionYears }, (_, i) => i + 1),
-      cumulativeSavings,
-      cumulativeCosts,
-      monthlyPayments,
-      utilityBills,
-    });
-
-    const totalLifetimeSavings = Math.max(0, cumulativeSavings[projectionYears - 1] - cumulativeCosts[projectionYears - 1]);
+    const totalLifetimeSavings = yearlyData[yearlyData.length - 1].cumulativeSavings - systemCost;
 
     setSummaryData({
       totalSavings: totalLifetimeSavings,
@@ -425,12 +283,26 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({
     });
   };
 
+  useEffect(() => {
+    calculateSavings();
+  }, [
+    panelCount, panelType, inverterType, hasBattery, financingOption,
+    loanTerm, interestRate, downPayment, incentivePercentage,
+    monthlyBill, projectionYears, inflationRate, utilityInflationRate, maintenanceCost
+  ]);
+
   return (
     <Container maxWidth="lg" sx={{ py: 3 }}>
       {/* Summary at the top for immediate visibility */}
       <Grid container spacing={3}>
         <Grid item xs={12}>
-          <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
+          <Paper elevation={0} sx={{ 
+            p: 2, 
+            mb: 3,
+            background: 'linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%)',
+            borderRadius: 3,
+            border: '1px solid rgba(226, 232, 240, 0.8)'
+          }}>
             <SavingsCalculatorSummary
               totalSavings={summaryData.totalSavings}
               paybackPeriod={summaryData.paybackPeriod}
@@ -450,42 +322,103 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({
 
         {/* Chart display */}
         <Grid item xs={12}>
-          <Paper elevation={2} sx={{ p: 2, mb: 3 }}>
-            <ChartDisplay
-              years={savingsData.years}
-              cumulativeSavings={savingsData.cumulativeSavings}
-              cumulativeCosts={savingsData.cumulativeCosts}
-              monthlyPayments={savingsData.monthlyPayments}
-              utilityBills={savingsData.utilityBills}
-            />
-          </Paper>
+          <ChartDisplay
+            years={savingsData.years}
+            cumulativeSavings={savingsData.cumulativeSavings}
+            cumulativeCosts={savingsData.cumulativeCosts}
+            monthlyPayments={savingsData.monthlyPayments}
+            utilityBills={savingsData.utilityBills}
+          />
         </Grid>
 
         {/* Configuration sections in tabs for mobile */}
         <Grid item xs={12}>
-          <Paper elevation={2} sx={{ mb: 3 }}>
-            <Tabs
-              value={activeTab}
-              onChange={(_, newValue) => setActiveTab(newValue)}
-              variant="scrollable"
-              scrollButtons="auto"
-              allowScrollButtonsMobile
-              sx={{
-                borderBottom: 1,
-                borderColor: 'divider',
-                '& .MuiTab-root': {
-                  minWidth: { xs: 'auto', sm: 160 },
-                  px: { xs: 2, sm: 3 },
-                },
-              }}
-            >
-              <Tab label="System" />
-              <Tab label="Timeline" />
-              <Tab label="Financial" />
-              <Tab label="Efficiency" />
-              <Tab label="Costs" />
-            </Tabs>
-            <Box sx={{ p: 2 }}>
+          <Paper elevation={0} sx={{ 
+            mb: 3,
+            background: 'linear-gradient(135deg, #ffffff 0%, #f8fafc 100%)',
+            borderRadius: 3,
+            border: '1px solid rgba(226, 232, 240, 0.8)',
+            overflow: 'hidden'
+          }}>
+            {/* Enhanced Tab Header */}
+            <Box sx={{ 
+              p: 2,
+              background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+              borderBottom: '1px solid rgba(226, 232, 240, 0.8)'
+            }}>
+              <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
+                <Settings sx={{ color: '#3b82f6', fontSize: 24 }} />
+                <Typography variant="h6" sx={{ 
+                  fontWeight: 'bold',
+                  color: '#1f2937',
+                  fontFamily: 'Inter, system-ui, sans-serif'
+                }}>
+                  System Configuration
+                </Typography>
+              </Box>
+              
+              <Tabs
+                value={activeTab}
+                onChange={(_, newValue) => setActiveTab(newValue)}
+                variant="scrollable"
+                scrollButtons="auto"
+                allowScrollButtonsMobile
+                sx={{
+                  '& .MuiTab-root': {
+                    minWidth: { xs: 'auto', sm: 160 },
+                    px: { xs: 2, sm: 3 },
+                    py: 1.5,
+                    textTransform: 'none',
+                    fontWeight: 600,
+                    fontFamily: 'Inter, system-ui, sans-serif',
+                    color: '#6b7280',
+                    '&.Mui-selected': {
+                      color: '#3b82f6',
+                      background: 'rgba(59, 130, 246, 0.1)',
+                      borderRadius: 1,
+                    },
+                    '&:hover': {
+                      color: '#3b82f6',
+                      background: 'rgba(59, 130, 246, 0.05)',
+                      borderRadius: 1,
+                    }
+                  },
+                  '& .MuiTabs-indicator': {
+                    backgroundColor: '#3b82f6',
+                    height: 3,
+                    borderRadius: 1.5
+                  }
+                }}
+              >
+                <Tab 
+                  label="System" 
+                  icon={<Settings sx={{ fontSize: 18 }} />}
+                  iconPosition="start"
+                />
+                <Tab 
+                  label="Timeline" 
+                  icon={<Timeline sx={{ fontSize: 18 }} />}
+                  iconPosition="start"
+                />
+                <Tab 
+                  label="Financial" 
+                  icon={<AttachMoney sx={{ fontSize: 18 }} />}
+                  iconPosition="start"
+                />
+                <Tab 
+                  label="Efficiency" 
+                  icon={<TrendingUp sx={{ fontSize: 18 }} />}
+                  iconPosition="start"
+                />
+                <Tab 
+                  label="Costs" 
+                  icon={<Calculate sx={{ fontSize: 18 }} />}
+                  iconPosition="start"
+                />
+              </Tabs>
+            </Box>
+            
+            <Box sx={{ p: 3 }}>
               {activeTab === 0 && (
                 <SystemConfiguration
                   panelCount={panelCount}
@@ -513,10 +446,9 @@ const SavingsCalculator: React.FC<SavingsCalculatorProps> = ({
                   interestRate={interestRate}
                   downPayment={downPayment}
                   incentivePercentage={incentivePercentage}
-                  onFinancingOptionChange={(option) => {
+                  onFinancingOptionChange={onFinancingOptionChange ? onFinancingOptionChange : (option) => {
                     // Can't change financing option directly since it's a prop from parent
                     console.log('Financing option change requested:', option);
-                    // Instead of setFinancingOption
                   }}
                   onLoanTermChange={setLoanTerm}
                   onInterestRateChange={setInterestRate}

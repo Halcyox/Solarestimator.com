@@ -68,16 +68,18 @@ function calculateFinancingOptions(systemCost: number, netCostAfterTaxCredit: nu
   lease: FinancingOption;
 } {
   // Cash purchase
-  const cashBreakeven = Math.ceil(netCostAfterTaxCredit / (monthlySavings * 12));
-  const cash: FinancingOption = {
-    type: 'cash',
-    monthlyPayment: 0,
-    totalCost: netCostAfterTaxCredit,
-    netSavings: monthlySavings * 12 * 25 - netCostAfterTaxCredit,
-    upfrontCost: netCostAfterTaxCredit,
-    breakevenYears: cashBreakeven
-  };
-
+  let cashBreakeven = Math.ceil(netCostAfterTaxCredit / (monthlySavings * 12));
+  
+  // Apply realistic breakeven limits
+  const MAX_BREAKEVEN_YEARS = 25;
+  const MIN_BREAKEVEN_YEARS = 1;
+  
+  if (cashBreakeven > MAX_BREAKEVEN_YEARS) {
+    cashBreakeven = MAX_BREAKEVEN_YEARS;
+  } else if (cashBreakeven < MIN_BREAKEVEN_YEARS) {
+    cashBreakeven = MIN_BREAKEVEN_YEARS;
+  }
+  
   // Solar loan
   const loanAmount = systemCost * (1 + DEALER_FEE);
   const monthlyRate = SOLAR_LOAN_RATE / 12;
@@ -86,25 +88,23 @@ function calculateFinancingOptions(systemCost: number, netCostAfterTaxCredit: nu
                             (Math.pow(1 + monthlyRate, numberOfPayments) - 1);
   
   let loanBreakeven = 0;
-  let cumulativeSavings = -DEALER_FEE * systemCost; // Start with dealer fee as initial cost
-  for (let month = 1; month <= 300; month++) { // Check up to 25 years
+  let cumulativeSavings = -DEALER_FEE * systemCost;
+  for (let month = 1; month <= 300; month++) {
     cumulativeSavings += monthlySavings - monthlyLoanPayment;
     if (cumulativeSavings > 0 && loanBreakeven === 0) {
       loanBreakeven = Math.ceil(month / 12);
     }
   }
-
-  const loan: FinancingOption = {
-    type: 'loan',
-    monthlyPayment: monthlyLoanPayment,
-    totalCost: monthlyLoanPayment * numberOfPayments,
-    netSavings: monthlySavings * 12 * 25 - (monthlyLoanPayment * numberOfPayments),
-    upfrontCost: 0,
-    breakevenYears: loanBreakeven
-  };
+  
+  // Apply limits to loan breakeven
+  if (loanBreakeven > MAX_BREAKEVEN_YEARS) {
+    loanBreakeven = MAX_BREAKEVEN_YEARS;
+  } else if (loanBreakeven < MIN_BREAKEVEN_YEARS) {
+    loanBreakeven = MIN_BREAKEVEN_YEARS;
+  }
 
   // Solar lease
-  const baseLeasePayment = monthlySavings * 0.8; // Lease payment starts at 80% of savings
+  const baseLeasePayment = monthlySavings * 0.8;
   let totalLeasePayments = 0;
   let leaseBreakeven = 0;
   let cumulativeLeaseAdvantage = 0;
@@ -119,17 +119,40 @@ function calculateFinancingOptions(systemCost: number, netCostAfterTaxCredit: nu
       leaseBreakeven = year + 1;
     }
   }
+  
+  // Apply limits to lease breakeven
+  if (leaseBreakeven > MAX_BREAKEVEN_YEARS) {
+    leaseBreakeven = MAX_BREAKEVEN_YEARS;
+  } else if (leaseBreakeven < MIN_BREAKEVEN_YEARS) {
+    leaseBreakeven = MIN_BREAKEVEN_YEARS;
+  }
 
-  const lease: FinancingOption = {
-    type: 'lease',
-    monthlyPayment: baseLeasePayment,
-    totalCost: totalLeasePayments,
-    netSavings: monthlySavings * 12 * 25 - totalLeasePayments,
-    upfrontCost: 0,
-    breakevenYears: leaseBreakeven
+  return {
+    cash: {
+      type: 'cash',
+      monthlyPayment: 0,
+      totalCost: netCostAfterTaxCredit,
+      netSavings: (monthlySavings * 12 * 25) - netCostAfterTaxCredit,
+      upfrontCost: netCostAfterTaxCredit,
+      breakevenYears: cashBreakeven
+    },
+    loan: {
+      type: 'loan',
+      monthlyPayment: monthlyLoanPayment,
+      totalCost: monthlyLoanPayment * numberOfPayments,
+      netSavings: (monthlySavings * 12 * 25) - (monthlyLoanPayment * numberOfPayments),
+      upfrontCost: 0,
+      breakevenYears: loanBreakeven
+    },
+    lease: {
+      type: 'lease',
+      monthlyPayment: baseLeasePayment,
+      totalCost: totalLeasePayments,
+      netSavings: (monthlySavings * 12 * 25) - totalLeasePayments,
+      upfrontCost: 0,
+      breakevenYears: leaseBreakeven
+    }
   };
-
-  return { cash, loan, lease };
 }
 
 function calculateSystemMetrics(
@@ -140,17 +163,31 @@ function calculateSystemMetrics(
   tiltFactor: number,
   shadingFactor: number
 ): SystemMetrics {
+  // Input validation
+  if (monthlyBill <= 0 || utilityRate <= 0 || sunshineHours <= 0) {
+    throw new Error("Invalid input parameters: Monthly bill, utility rate, and sunshine hours must be positive values");
+  }
+
   // Calculate required system size based on monthly bill
   const monthlyKwh = monthlyBill / utilityRate;
   const yearlyKwh = monthlyKwh * 12;
   const dailyKwh = yearlyKwh / 365;
-  
-  // Calculate required system size considering losses
   const requiredDailyKwh = dailyKwh / (1 - TYPICAL_SYSTEM_LOSSES);
   const baseSystemSizeKW = requiredDailyKwh / AVG_DAILY_SUN_HOURS;
   
   // Apply size multiplier and efficiency factors
-  const systemSizeKW = baseSystemSizeKW * sizeMultiplier * tiltFactor * shadingFactor;
+  let systemSizeKW = baseSystemSizeKW * sizeMultiplier * tiltFactor * shadingFactor;
+  
+  // Apply realistic system size limits for residential installations
+  const MAX_RESIDENTIAL_SYSTEM_KW = 20;
+  const MIN_RESIDENTIAL_SYSTEM_KW = 1;
+  
+  if (systemSizeKW > MAX_RESIDENTIAL_SYSTEM_KW) {
+    systemSizeKW = MAX_RESIDENTIAL_SYSTEM_KW;
+  } else if (systemSizeKW < MIN_RESIDENTIAL_SYSTEM_KW) {
+    systemSizeKW = MIN_RESIDENTIAL_SYSTEM_KW;
+  }
+  
   const numberOfPanels = Math.round(systemSizeKW / AVERAGE_PANEL_OUTPUT_KW);
   
   // Calculate yearly production
@@ -203,10 +240,25 @@ export async function POST(request: Request) {
     const tiltFactor = 0.95; // Assuming good roof tilt
     const shadingFactor = 0.90; // Assuming minimal shading
 
-    // Calculate metrics for three system options
-    const economySystem = calculateSystemMetrics(monthlyBill, 0.75, utilityRate, sunshineHours, tiltFactor, shadingFactor);
-    const recommendedSystem = calculateSystemMetrics(monthlyBill, 1.0, utilityRate, sunshineHours, tiltFactor, shadingFactor);
-    const maxSavingsSystem = calculateSystemMetrics(monthlyBill, 1.25, utilityRate, sunshineHours, tiltFactor, shadingFactor);
+    // Validate input parameters
+    if (monthlyBill <= 0) {
+      return Response.json({ 
+        error: "Monthly bill must be a positive value" 
+      }, { status: 400 });
+    }
+
+    // Calculate metrics for three system options with error handling
+    let economySystem, recommendedSystem, maxSavingsSystem;
+    
+    try {
+      economySystem = calculateSystemMetrics(monthlyBill, 0.75, utilityRate, sunshineHours, tiltFactor, shadingFactor);
+      recommendedSystem = calculateSystemMetrics(monthlyBill, 1.0, utilityRate, sunshineHours, tiltFactor, shadingFactor);
+      maxSavingsSystem = calculateSystemMetrics(monthlyBill, 1.25, utilityRate, sunshineHours, tiltFactor, shadingFactor);
+    } catch (error) {
+      return Response.json({ 
+        error: `Calculation error: ${error instanceof Error ? error.message : 'Unknown error'}` 
+      }, { status: 400 });
+    }
 
     // Send confirmation email to user
     const emailHtml = `

@@ -7,9 +7,10 @@ import { StepContainer, WizardNavigation } from '../ui';
 interface ResultsStepProps {
   prevStep?: () => void;
   data: WizardData;
+  updateData: (newData: Partial<WizardData>) => void;
 }
 
-const ResultsStep: React.FC<ResultsStepProps> = ({ prevStep, data }) => {
+const ResultsStep: React.FC<ResultsStepProps> = ({ prevStep, data, updateData }) => {
   if (data.isFetchingSolarData) {
     return (
       <StepContainer title="Step 5: Results">
@@ -59,6 +60,7 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ prevStep, data }) => {
         shadingFactor={data.shadingFactor}
         tiltFactor={data.tiltFactor}
         financingOption={data.financingOption}
+        onFinancingOptionChange={(option) => updateData({ financingOption: option })}
       />
       <div className="mt-6 flex justify-start">
         {prevStep && (

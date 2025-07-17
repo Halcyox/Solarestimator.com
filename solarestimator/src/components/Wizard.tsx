@@ -58,7 +58,7 @@ const renderWizardStep = (status: Status, currentStep: number, stepProps: StepPr
         case 2: return <ElectricBillStep {...stepProps} />;
         case 3: return <SystemParametersStep {...stepProps} />;
         case 4: return <FinancingOptionsStep {...stepProps} />;
-        case 5: return <ResultsStep {...stepProps} />;
+        case 5: return <ResultsStep {...stepProps} updateData={stepProps.updateData} />;
         default: return <div>Invalid Step</div>;
     }
 };

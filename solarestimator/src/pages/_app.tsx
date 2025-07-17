@@ -3,6 +3,9 @@ import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import Script from 'next/script';
 
+// Import Chart.js configuration early
+import '../utils/chartConfig';
+
 /**
  * The main app component. This wraps the entire app with a Navbar and Footer.
  *
