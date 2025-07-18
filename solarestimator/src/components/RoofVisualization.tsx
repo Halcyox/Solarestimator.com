@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { RoofSegmentStat, BuildingInsights } from './apiHelper';
+import { RoofSegmentStat } from './apiHelper';
 
 // We'll skip redefining window.google type since it's defined elsewhere
 
@@ -27,11 +27,13 @@ const RoofVisualization: React.FC<RoofVisualizationProps> = ({
   tiltFactor,
   apiKey
 }) => {
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [canvasSize, setCanvasSize] = useState({ width: 800, height: 600 });
+  const [canvasSize, setCanvasSize] = useState({ width: 0, height: 0 });
   const [scale, setScale] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showAngles, setShowAngles] = useState(true);
 
   // Calculate bounds for all roof segments
   const calculateBounds = (segments: RoofSegmentStat[]) => {
@@ -134,30 +136,32 @@ const RoofVisualization: React.FC<RoofVisualizationProps> = ({
     ctx.fill();
     ctx.stroke();
 
-    // Add segment information at center with enhanced styling
-    const centerPoint = {
-      x: points.reduce((sum, p) => sum + p.x, 0) / points.length,
-      y: points.reduce((sum, p) => sum + p.y, 0) / points.length
-    };
-    
-    // Background for text
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
-    ctx.fillRect(centerPoint.x - 25, centerPoint.y - 12, 50, 24);
-    
-    // Text styling
-    ctx.font = 'bold 14px Inter, system-ui, sans-serif';
-    ctx.fillStyle = '#1e40af'; // Blue-800
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(
-      `${Math.round(segment.pitchDegrees)}°`,
-      centerPoint.x,
-      centerPoint.y
-    );
+    if (showAngles) {
+      // Add segment information at center with enhanced styling
+      const centerPoint = {
+        x: points.reduce((sum, p) => sum + p.x, 0) / points.length,
+        y: points.reduce((sum, p) => sum + p.y, 0) / points.length
+      };
+      
+      // Background for text
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+      ctx.fillRect(centerPoint.x - 25, centerPoint.y - 12, 50, 24);
+      
+      // Text styling
+      ctx.font = 'bold 14px Inter, system-ui, sans-serif';
+      ctx.fillStyle = '#1e40af'; // Blue-800
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText(
+        `${Math.round(segment.pitchDegrees)}°`,
+        centerPoint.x,
+        centerPoint.y
+      );
+    }
   };
 
   // Draw potential panel layout
-  const drawPanelLayout = (ctx: CanvasRenderingContext2D, segment: RoofSegmentStat) => {
+  const drawPanelLayout = (ctx: CanvasRenderingContext2D, segment: RoofSegmentStat, segmentIndex: number) => {
     // Skip if no valid bounds data
     if (!segment.boundingBox) {
       console.warn('Segment missing bounds data:', segment);
@@ -189,8 +193,8 @@ const RoofVisualization: React.FC<RoofVisualizationProps> = ({
     const panelsWide = Math.floor(segmentWidthMeters / (panelWidth + PANEL_SPACING));
     const panelsHigh = Math.floor(segmentHeightMeters / (panelHeight + PANEL_SPACING));
 
-    // Calculate total panels that can fit
-    const totalPanels = Math.min(panelsWide * panelsHigh, numberOfPanels);
+    // Calculate total panels that can fit on this segment
+    const maxPanelsForSegment = panelsWide * panelsHigh;
 
     // Calculate segment vectors
     const segmentWidth = Math.sqrt(
@@ -204,10 +208,18 @@ const RoofVisualization: React.FC<RoofVisualizationProps> = ({
     const panelWidthCanvas = (segmentWidth / panelsWide) * 0.85; // 85% of available space
     const panelHeightCanvas = (segmentHeight / panelsHigh) * 0.85;
 
+    // Distribute panels across segments based on area
+    const totalSegmentArea = roofSegments.reduce((sum, seg) => sum + seg.stats.areaMeters2, 0);
+    const segmentAreaRatio = segment.stats.areaMeters2 / totalSegmentArea;
+    const panelsForThisSegment = Math.floor(numberOfPanels * segmentAreaRatio);
+    
+    // Ensure we don't exceed the maximum panels that can fit on this segment
+    const actualPanelsForSegment = Math.min(panelsForThisSegment, maxPanelsForSegment);
+
     // Calculate panel positions
     for (let row = 0; row < panelsHigh; row++) {
       for (let col = 0; col < panelsWide; col++) {
-        if (row * panelsWide + col >= totalPanels) break;
+        if (row * panelsWide + col >= actualPanelsForSegment) break;
 
         // Calculate panel position
         const xOffset = (col + 0.5) * (segmentWidth / panelsWide);
@@ -269,154 +281,110 @@ const RoofVisualization: React.FC<RoofVisualizationProps> = ({
     }
   };
 
+  // Add a ResizeObserver to update canvas size when the container resizes
   useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas || !roofSegments.length) return;
+    const container = containerRef.current;
+    if (!container) return;
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    // Update canvas size based on container
-    const updateCanvasSize = () => {
-      const container = canvas.parentElement;
-      if (!container) return;
-
-      const containerWidth = container.clientWidth;
-      const newWidth = Math.min(containerWidth, 1200); // Max width of 1200px
-      const newHeight = Math.round(newWidth * 0.75); // 4:3 aspect ratio
-
-      if (newWidth !== canvasSize.width || newHeight !== canvasSize.height) {
-        setCanvasSize({ width: newWidth, height: newHeight });
+    const resizeObserver = new ResizeObserver(entries => {
+      if (entries.length > 0) {
+        const { width, height } = entries[0].contentRect;
+        setCanvasSize({ width, height });
       }
-    };
+    });
 
-    // Initial size update
-    updateCanvasSize();
+    resizeObserver.observe(container);
 
-    // Add resize listener
-    window.addEventListener('resize', updateCanvasSize);
-
-    // Cleanup
     return () => {
-      window.removeEventListener('resize', updateCanvasSize);
+      resizeObserver.disconnect();
     };
-  }, [canvasSize.width, canvasSize.height]); // Only re-run if canvas size changes
+  }, []);
 
-  // Separate useEffect for drawing
+  // Redraw canvas when data or size changes
   useEffect(() => {
     const canvas = canvasRef.current;
-    if (!canvas || !roofSegments.length) return;
-
+    if (!canvas || canvasSize.width === 0 || canvasSize.height === 0 || loading || error) {
+      return;
+    }
+    
     const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    // Set canvas size
+    if (!ctx) {
+      setError('Could not get canvas context.');
+      return;
+    }
+    
     canvas.width = canvasSize.width;
     canvas.height = canvasSize.height;
 
-    // Clear canvas
     ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // Enhanced background with gradient
-    const bgGradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    bgGradient.addColorStop(0, '#f8fafc'); // Slate-50
-    bgGradient.addColorStop(1, '#f1f5f9'); // Slate-100
-    ctx.fillStyle = bgGradient;
+    ctx.fillStyle = '#f3f4f6';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-    // Add a modern title and legend
-    ctx.fillStyle = '#1e293b'; // Slate-800
-    ctx.font = 'bold 18px Inter, system-ui, sans-serif';
-    ctx.textAlign = 'left';
-    ctx.fillText('Roof Segments and Solar Panel Layout', 20, 30);
-
-    // Enhanced legend with better styling
-    const legendY = 60;
-    const legendX = 20;
     
-    // Legend background
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.95)';
-    ctx.fillRect(legendX - 10, legendY - 10, 300, 80);
-    ctx.strokeStyle = 'rgba(226, 232, 240, 0.8)'; // Slate-200
-    ctx.lineWidth = 1;
-    ctx.strokeRect(legendX - 10, legendY - 10, 300, 80);
-    
-    // Draw legend items with enhanced styling
-    ctx.font = '14px Inter, system-ui, sans-serif';
-    
-    // Roof pitch
-    const roofGradient = ctx.createLinearGradient(legendX, legendY, legendX + 20, legendY + 20);
-    roofGradient.addColorStop(0, 'rgba(59, 130, 246, 0.8)'); // Blue-500
-    roofGradient.addColorStop(1, 'rgba(37, 99, 235, 0.9)'); // Blue-600
-    ctx.fillStyle = roofGradient;
-    ctx.fillRect(legendX, legendY, 20, 20);
-    ctx.strokeStyle = 'rgba(30, 58, 138, 0.8)'; // Blue-800
-    ctx.lineWidth = 2;
-    ctx.strokeRect(legendX, legendY, 20, 20);
-    ctx.fillStyle = '#1e293b'; // Slate-800
-    ctx.fillText('Roof Segment (showing pitch)', legendX + 30, legendY + 14);
-
-    // Solar panel
-    const panelGradient = ctx.createLinearGradient(legendX, legendY + 30, legendX + 20, legendY + 50);
-    panelGradient.addColorStop(0, 'rgba(15, 23, 42, 0.8)'); // Slate-900
-    panelGradient.addColorStop(1, 'rgba(30, 41, 59, 0.9)'); // Slate-800
-    ctx.fillStyle = panelGradient;
-    ctx.fillRect(legendX, legendY + 30, 20, 20);
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.6)';
-    ctx.lineWidth = 2;
-    ctx.strokeRect(legendX, legendY + 30, 20, 20);
-    ctx.fillStyle = '#1e293b'; // Slate-800
-    ctx.fillText('Solar Panel', legendX + 30, legendY + 44);
-
-    // Enhanced efficiency information
-    ctx.fillStyle = '#64748b'; // Slate-500
-    ctx.font = '12px Inter, system-ui, sans-serif';
-    ctx.fillText(
-      `Shading Factor: ${Math.round(shadingFactor * 100)}% | Tilt Factor: ${Math.round(tiltFactor * 100)}%`,
-      legendX,
-      canvas.height - 30
-    );
-
-    // Draw all roof segments
-    roofSegments.forEach(segment => {
-      drawRoofSegment(ctx, segment);
-      drawPanelLayout(ctx, segment);
-    });
-
-  }, [canvasSize, roofSegments, shadingFactor, tiltFactor, numberOfPanels]); // Add all dependencies
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-        <span className="ml-3 text-gray-600">Loading roof visualization...</span>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="text-center p-8 bg-gradient-to-br from-red-50 to-red-100 rounded-lg">
-        <div className="text-red-600 text-lg font-semibold mb-2">⚠️ Error</div>
-        <div className="text-red-500">Error loading visualization: {error}</div>
-      </div>
-    );
-  }
+    if (roofSegments.length > 0) {
+      roofSegments.forEach(segment => drawRoofSegment(ctx, segment));
+      roofSegments.forEach((segment, index) => drawPanelLayout(ctx, segment, index));
+    } else {
+      ctx.fillStyle = '#6b7280';
+      ctx.font = '16px Inter, system-ui, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('No roof segments data available.', canvas.width / 2, canvas.height / 2);
+    }
+  }, [
+    roofSegments,
+    numberOfPanels,
+    shadingFactor,
+    tiltFactor,
+    canvasSize,
+    loading,
+    error,
+    showAngles,
+  ]);
 
   return (
-    <div className="relative">
+    <div ref={containerRef} style={{ width: '100%', height: '100%', position: 'relative', background: '#f3f4f6' }}>
+      {loading && (
+        <div style={{ /* loading styles */ }}>Loading...</div>
+      )}
+      {error && (
+        <div style={{ /* error styles */ }}>Error: {error}</div>
+      )}
       <canvas
         ref={canvasRef}
         style={{
           width: '100%',
-          height: 'auto',
-          maxWidth: '1200px',
-          display: 'block',
-          margin: '0 auto',
-          borderRadius: '12px',
-          boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)'
+          height: '100%',
+          display: loading || error ? 'none' : 'block',
         }}
       />
+      {!(loading || error) && (
+        <>
+          <div style={{ position: 'absolute', bottom: '10px', right: '10px', fontSize: '10px', color: '#9ca3af' }}>
+            Shading Factor: {shadingFactor.toFixed(2)}% | Tilt Factor: {tiltFactor.toFixed(2)}%
+          </div>
+          <div style={{ position: 'absolute', top: '10px', left: '10px', background: 'rgba(255,255,255,0.8)', padding: '8px', borderRadius: '6px' }}>
+              <div style={{ display: 'flex', alignItems: 'center', marginBottom: '4px' }}>
+                <div style={{ width: '20px', height: '10px', background: '#3b82f6', marginRight: '8px', border: '1px solid #1e40af' }}></div>
+                <span style={{ fontSize: '12px' }}>Roof Segment (showing pitch)</span>
+              </div>
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <div style={{ width: '20px', height: '10px', background: '#1e293b', marginRight: '8px', border: '1px solid #0f172a' }}></div>
+                <span style={{ fontSize: '12px' }}>Solar Panel</span>
+              </div>
+          </div>
+          <div style={{ position: 'absolute', top: '10px', right: '10px', background: 'rgba(255,255,255,0.8)', padding: '8px', borderRadius: '6px' }}>
+            <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+              <input 
+                type="checkbox" 
+                checked={showAngles} 
+                onChange={() => setShowAngles(!showAngles)}
+                style={{ marginRight: '8px' }}
+              />
+              <span style={{ fontSize: '12px' }}>Show Angles</span>
+            </label>
+          </div>
+        </>
+      )}
     </div>
   );
 };

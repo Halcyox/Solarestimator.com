@@ -45,9 +45,13 @@ interface AddressStepProps {
 const AddressStep: React.FC<AddressStepProps> = ({ data, onUpdate }) => {
   /**
    * Handles changes to the address input field
-   * @param {{ address: string; bill: number }} inputData - New address and bill data
+   * @param {string | null} address - New address data
    */
-  const handleAddressChange = ({ address, bill }: { address: string; bill: number }) => {
+  const handleAddressChange = (address: string | null) => {
+    if (!address) {
+      onUpdate({ address: '', city: '', state: '', zipCode: '' });
+      return;
+    }
     // First try to extract zip code from the end of the address
     const zipMatch = address.match(/\b\d{5}\b/);
     const zipCode = zipMatch ? zipMatch[0] : '';
@@ -76,10 +80,18 @@ const AddressStep: React.FC<AddressStepProps> = ({ data, onUpdate }) => {
         city,
         state,
         zipCode,
-        monthlyBill: bill
+        monthlyBill: data.monthlyBill // Keep existing bill
       };
       
       onUpdate(updates);
+    } else {
+        onUpdate({
+            address: cleanAddress,
+            city: '',
+            state: '',
+            zipCode: zipCode,
+            monthlyBill: data.monthlyBill
+        })
     }
   };
 
@@ -92,7 +104,6 @@ const AddressStep: React.FC<AddressStepProps> = ({ data, onUpdate }) => {
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
         <AddressInput 
           initialAddress={data.address ? `${data.address}, ${data.city}, ${data.state} ${data.zipCode}` : ''}
-          initialBill={data.monthlyBill ?? undefined}
           onChange={handleAddressChange}
         />
       </Box>

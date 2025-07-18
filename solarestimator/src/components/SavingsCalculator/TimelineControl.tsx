@@ -1,5 +1,6 @@
 import React from 'react';
 import { Slider, Typography, FormControl } from '@mui/material';
+import '../../styles/system-configuration.css';
 
 /**
  * Props interface for the TimelineControl component
@@ -42,6 +43,7 @@ const TimelineControl: React.FC<TimelineControlProps> = ({
         step={1}
         valueLabelDisplay="auto"
         aria-label="Timeline length in years"
+        className="custom-slider"
       />
     </FormControl>
   );

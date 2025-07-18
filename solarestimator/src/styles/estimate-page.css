@@ -1,0 +1,22 @@
+/* Estimate Page Layout Styles - Aggressive Full Width */
+
+.estimate-page {
+  width: 100vw !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  background-color: #f9fafb;
+  overflow-x: hidden;
+}
+
+.estimate-page-container {
+  width: 100vw !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Override any remaining constraints */
+.estimate-page * {
+  max-width: none !important;
+} 

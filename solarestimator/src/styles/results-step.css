@@ -1,0 +1,57 @@
+/* ResultsStep Component Styles */
+
+.results-step {
+  width: 100%;
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.results-step-loading {
+  width: 100%;
+  text-align: center;
+}
+
+.results-step-loading-spinner {
+  animation: pulse 1.5s ease-in-out infinite;
+  display: flex;
+  justify-content: center;
+  margin: 2rem 0;
+}
+
+.results-step-loading-dot {
+  height: 3rem;
+  width: 3rem;
+  background-color: #f59e0b;
+  border-radius: 50%;
+}
+
+.results-step-loading-text {
+  font-size: 1.125rem;
+  color: #6b7280;
+}
+
+.results-step-error {
+  width: 100%;
+  text-align: center;
+}
+
+.results-step-error-message {
+  color: #dc2626;
+  margin-bottom: 1.5rem;
+}
+
+.results-step-empty {
+  width: 100%;
+  text-align: center;
+}
+
+.results-step-empty-message {
+  margin-bottom: 1.5rem;
+}
+
+.results-step-back-button {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e5e7eb;
+  display: flex;
+  justify-content: flex-start;
+} 

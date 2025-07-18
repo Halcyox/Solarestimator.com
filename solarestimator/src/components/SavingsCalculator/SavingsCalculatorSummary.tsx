@@ -259,7 +259,7 @@ const SavingsCalculatorSummary: React.FC<SavingsCalculatorSummaryProps> = ({
           }}>
             <Savings sx={{ color: '#4CAF50', fontSize: '1.2rem', mb: 0.5 }} />
             <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#2E7D32' }}>
-              {formatCurrency(Math.abs(monthlySaving))}
+              {formatCurrency(Math.max(0, monthlySaving))}
             </Typography>
             <Typography variant="caption" sx={{ color: '#666' }}>
               Monthly Savings
@@ -297,7 +297,7 @@ const SavingsCalculatorSummary: React.FC<SavingsCalculatorSummaryProps> = ({
           }}>
             <AttachMoney sx={{ color: '#4CAF50', fontSize: '1.2rem', mb: 0.5 }} />
             <Typography variant="h6" sx={{ fontWeight: 'bold', color: '#2E7D32' }}>
-              {formatCurrency(totalSavings)}
+              {formatCurrency(Math.max(0, totalSavings))}
             </Typography>
             <Typography variant="caption" sx={{ color: '#666' }}>
               25-Year Savings

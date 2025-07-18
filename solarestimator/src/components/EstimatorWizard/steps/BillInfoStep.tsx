@@ -1,15 +1,5 @@
 import React from 'react';
-import {
-  Box,
-  TextField,
-  Typography,
-  InputAdornment,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel
-} from '@mui/material';
-import { AttachMoney } from '@mui/icons-material';
+import { Box, TextField, InputAdornment } from '@mui/material';
 
 /**
  * Props interface for the BillInfoStep component
@@ -21,7 +11,7 @@ import { AttachMoney } from '@mui/icons-material';
  */
 interface BillInfoStepProps {
   data: {
-    monthlyBill: number | null;
+    bill: number | null;
     utilityProvider: string;
   };
   onUpdate: (updates: Partial<BillInfoStepProps['data']>) => void;
@@ -37,46 +27,30 @@ interface BillInfoStepProps {
  */
 const BillInfoStep: React.FC<BillInfoStepProps> = ({ data, onUpdate }) => {
   return (
-    <Box>
-      <Typography variant="h5" gutterBottom align="center" sx={{ mb: 3 }}>
-        Your Energy Usage
-      </Typography>
-      
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 3 }}>
-        <TextField
-          required
-          fullWidth
-          label="Average Monthly Electric Bill"
-          type="number"
-          value={data.monthlyBill}
-          onChange={(e) => onUpdate({ monthlyBill: Number(e.target.value) })}
-          InputProps={{
-            startAdornment: (
-              <InputAdornment position="start">
-                <AttachMoney />
-              </InputAdornment>
-            ),
-          }}
-        />
-
-        <FormControl fullWidth required>
-          <InputLabel>Utility Provider</InputLabel>
-          <Select
-            value={data.utilityProvider}
-            label="Utility Provider"
-            onChange={(e) => onUpdate({ utilityProvider: e.target.value })}
-          >
-            <MenuItem value="pge">PG&amp;E</MenuItem>
-            <MenuItem value="sce">Southern California Edison</MenuItem>
-            <MenuItem value="sdge">San Diego Gas &amp; Electric</MenuItem>
-            <MenuItem value="other">Other</MenuItem>
-          </Select>
-        </FormControl>
-      </Box>
-
-      <Typography variant="body2" color="text.secondary" sx={{ mt: 3 }} align="center">
-        This helps us calculate your potential solar savings
-      </Typography>
+    <Box className="space-y-4">
+      <TextField
+        label="What is your average monthly electric bill?"
+        type="number"
+        placeholder="150"
+        fullWidth
+        value={data.bill ?? ''}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => onUpdate({ bill: parseInt(e.target.value, 10) || null })}
+        InputProps={{
+          startAdornment: <InputAdornment position="start">$</InputAdornment>,
+        }}
+        error={!data.bill}
+        helperText={!data.bill ? 'Monthly bill is required' : ''}
+      />
+      <TextField
+        label="Who is your utility provider?"
+        type="text"
+        fullWidth
+        placeholder="e.g., PG&E, Con Edison"
+        value={data.utilityProvider}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => onUpdate({ utilityProvider: e.target.value })}
+        error={!data.utilityProvider}
+        helperText={!data.utilityProvider ? 'Utility provider is required' : ''}
+      />
     </Box>
   );
 };

@@ -1,0 +1,86 @@
+/* Material-UI Override Styles - More Precise Full Width */
+
+/* Override specific Material-UI container components */
+.MuiContainer-root,
+.MuiContainer-maxWidthSm,
+.MuiContainer-maxWidthMd,
+.MuiContainer-maxWidthLg,
+.MuiContainer-maxWidthXl {
+  max-width: none !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Override Paper component (used for cards) */
+.MuiPaper-root {
+  max-width: none !important;
+  width: 100% !important;
+}
+
+/* Override Box component */
+.MuiBox-root {
+  max-width: none !important;
+  width: 100% !important;
+}
+
+/* Override Grid component */
+.MuiGrid-root,
+.MuiGrid-container,
+.MuiGrid-item {
+  max-width: none !important;
+  width: 100% !important;
+}
+
+/* Override Tabs component container to be full width */
+.MuiTabs-root {
+  max-width: none !important;
+  width: 100% !important;
+}
+
+/* Allow individual tabs to size themselves naturally */
+.MuiTab-root {
+  width: auto !important;
+  max-width: 250px !important; /* Prevent super wide tabs */
+  flex-shrink: 0 !important;
+}
+
+/* Allow slider to be full width, but internals to be auto */
+.MuiSlider-root {
+  width: 100% !important;
+}
+
+.MuiSlider-markLabel,
+.MuiSlider-thumb,
+.MuiSlider-track,
+.MuiSlider-rail {
+  width: auto !important; /* Reset width for slider internals */
+  max-width: none !important;
+}
+
+/* Remove max-width from Tailwind classes if they are used */
+.max-w-md, .max-w-lg, .max-w-xl, .max-w-2xl, .max-w-3xl, .max-w-4xl, .max-w-5xl, .max-w-6xl, .max-w-7xl {
+  max-width: none !important;
+}
+
+/* Override any container classes */
+.container,
+.savings-calculator {
+  max-width: none !important;
+  width: 100% !important;
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* Remove max-width from key layout components, but do not force 100% width on everything */
+.solar-estimator, .estimate-page {
+  max-width: none !important;
+}
+
+/* General body reset */
+body, html {
+  width: 100% !important;
+  max-width: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+} 

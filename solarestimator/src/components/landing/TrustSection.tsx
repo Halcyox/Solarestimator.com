@@ -4,7 +4,7 @@ import React from 'react';
 const TestimonialCard = ({ quote, author, location }: { quote: string, author: string, location: string }) => (
   // Use background of section for card, add border and subtle shadow
   <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200/80 text-center md:text-left">
-    <p className="font-sans text-gray-600 italic mb-4 text-base leading-relaxed">"{quote}"</p>
+    <p className="font-sans text-gray-600 italic mb-4 text-base leading-relaxed">&ldquo;{quote}&rdquo;</p>
     <p className="font-sans font-semibold text-gray-800">- {author}</p>
     <p className="font-sans text-sm text-gray-500">{location}</p>
   </div>
@@ -37,7 +37,7 @@ export const TrustSection: React.FC = () => {
   return (
     // Keep background color
     <section className="bg-gray-50 py-20 md:py-28">
-      <div className="container mx-auto px-4">
+      <div className="w-full px-4 sm:px-6 lg:px-8">
         <h2 className="font-heading text-3xl md:text-4xl font-semibold text-center mb-12 md:mb-16 text-gray-800">
           Trusted by Homeowners Like You
         </h2>

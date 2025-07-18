@@ -7,7 +7,7 @@ import { ArrowRightIcon } from '@heroicons/react/24/solid';
 export const CtaSection: React.FC = () => {
   return (
     <section className="bg-white py-20 md:py-28 border-t border-gray-100">
-      <div className="container mx-auto px-4 text-center">
+      <div className="w-full px-4 sm:px-6 lg:px-8 text-center">
         <h2 className="font-heading text-3xl md:text-4xl font-semibold mb-6 text-gray-800">Ready to Take Control of Your Energy Costs?</h2>
         <p className="font-sans text-lg md:text-xl mb-10 text-gray-600 max-w-2xl mx-auto">
           Start by entering your address in the section above to get your instant estimate, or learn more about the benefits of solar energy.

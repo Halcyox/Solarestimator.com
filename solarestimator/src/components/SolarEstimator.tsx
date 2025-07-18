@@ -1,104 +1,190 @@
 // SolarEstimator.tsx
-import React from 'react';
-import { FetchedSolarData, RoofSegmentStat } from './apiHelper';
+import React, { useState } from 'react';
+import { FetchedSolarData } from './apiHelper';
 import RoofVisualization from './RoofVisualization';
-import SavingsCalculator from './SavingsCalculator';
 import { FinancingOption } from './Wizard';
+import { PanelType, InverterType } from './SavingsCalculator/types';
+import SavingsCalculatorSummary from './SavingsCalculator/SavingsCalculatorSummary';
+import ChartDisplay from './SavingsCalculator/ChartDisplay';
+import SystemConfiguration from './SavingsCalculator/SystemConfiguration';
+import FinancialInputs from './SavingsCalculator/FinancialInputs';
+import EfficiencyFactors from './SavingsCalculator/EfficiencyFactors';
+import CostFactors from './SavingsCalculator/CostFactors';
+import TimelineControl from './SavingsCalculator/TimelineControl';
+import { Tabs, Tab, Box } from '@mui/material';
+import { TrendingUp, Settings, Timeline, AttachMoney, Calculate } from '@mui/icons-material';
+import { useSolarCalculations } from '../hooks/useSolarCalculations';
+import '../styles/solar-estimator.css';
+import '../styles/material-ui-overrides.css';
 
 interface SolarEstimatorProps {
   solarData: FetchedSolarData;
-  totalEnergyProductionPerYearKwh: number | null;
   bill: number;
+  financingOption: FinancingOption;
+  onFinancingOptionChange?: (option: FinancingOption) => void;
   numberOfPanels: number;
   shadingFactor: number;
   tiltFactor: number;
-  financingOption: FinancingOption;
-  onFinancingOptionChange?: (option: FinancingOption) => void;
+}
+
+interface RoofSegment {
+  tiltAngle: number;
+  azimuth: number;
+  shadingFactor: number;
+  area: number;
 }
 
 const SolarEstimator: React.FC<SolarEstimatorProps> = (props) => {
   const {
-    solarData,
-    totalEnergyProductionPerYearKwh,
+    solarData: fetchedSolarData,
     bill,
     numberOfPanels,
-    shadingFactor,
-    tiltFactor,
-    financingOption,
+    financingOption: initialFinancingOption,
     onFinancingOptionChange,
   } = props;
 
-  if (!solarData) {
-    return (
-      <div className="text-center p-8 bg-gradient-to-br from-red-50 to-red-100 rounded-lg shadow-lg">
-        <div className="text-red-600 text-lg font-semibold mb-2">⚠️ Error</div>
-        <div className="text-red-500">Solar data is missing. Please try again.</div>
-      </div>
-    );
+  // --- UI State Management ---
+  const [panelCount, setPanelCount] = useState(numberOfPanels);
+  const [panelType, setPanelType] = useState<PanelType>('Monocrystalline');
+  const [inverterType, setInverterType] = useState<InverterType>('StringInverter');
+  const [hasBattery, setHasBattery] = useState(false);
+  const [financingOption, setFinancingOption] = useState<FinancingOption>(initialFinancingOption);
+  const [roofSegments, setRoofSegments] = useState<RoofSegment[]>([]);
+  
+  const [loanTerm, setLoanTerm] = useState(20);
+  const [interestRate, setInterestRate] = useState(4.5);
+  const [downPayment, setDownPayment] = useState(0);
+  const [incentivePercentage, setIncentivePercentage] = useState(26);
+
+  const [monthlyBill, setMonthlyBill] = useState(bill);
+  const [projectionYears, setProjectionYears] = useState(25);
+  const [inflationRate, setInflationRate] = useState(2.9);
+  const [utilityInflationRate, setUtilityInflationRate] = useState(3.5);
+  const [maintenanceCost, setMaintenanceCost] = useState(200);
+  
+  const [activeTab, setActiveTab] = useState(0);
+
+  // --- Using the custom hook for all calculations ---
+  const { summaryData, savingsData, adjustedMaxPanels } = useSolarCalculations({
+    fetchedSolarData,
+    bill: monthlyBill,
+    panelCount,
+    panelType,
+    inverterType,
+    hasBattery,
+    financingOption,
+    loanTerm,
+    interestRate,
+    downPayment,
+    incentivePercentage,
+    projectionYears,
+    utilityInflationRate,
+    maintenanceCost,
+  });
+
+  const handleFinancingOptionChange = (option: FinancingOption) => {
+    setFinancingOption(option);
+    if(onFinancingOptionChange) {
+      onFinancingOptionChange(option);
+    }
   }
 
-  const dummyHandler = () => {};
+  if (!fetchedSolarData) {
+    return <div>Error: Solar data is missing.</div>;
+  }
 
   return (
-    <div className="max-w-6xl mx-auto p-4 space-y-6">
-      {/* Header Section */}
-      <div className="text-center mb-8">
-        <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent mb-4">
-          Your Solar Estimate
-        </h1>
-        <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-          Personalized analysis based on your property and energy usage
-        </p>
-      </div>
-
-      {/* Roof Visualization Section */}
-      <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-4 border-b border-gray-100">
-          <h2 className="text-xl font-semibold text-gray-800 flex items-center">
-            🏠 Roof Analysis & Panel Layout
-          </h2>
-          <p className="text-sm text-gray-600 mt-1">
-            Interactive visualization of your roof segments and optimal solar panel placement
+    <div className="solar-estimator">
+      <div className="solar-estimator-container">
+        <div className="solar-estimator-header">
+          <h1 className="solar-estimator-title">
+            Your Solar Estimate
+          </h1>
+          <p className="solar-estimator-subtitle">
+            Personalized analysis based on your property and energy usage
           </p>
         </div>
-        <div className="p-6">
-          <RoofVisualization
-            latitude={solarData.latitude}
-            longitude={solarData.longitude}
-            roofSegments={solarData.roofSegmentStats ?? []}
-            numberOfPanels={numberOfPanels}
-            shadingFactor={shadingFactor}
-            tiltFactor={tiltFactor}
-            apiKey={process.env.NEXT_PUBLIC_GOOGLE_SOLAR_API_KEY ?? ''}
-          />
-        </div>
-      </div>
 
-      {/* Savings Calculator Section */}
-      <div className="bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
-        <div className="bg-gradient-to-r from-green-50 to-emerald-50 px-6 py-4 border-b border-gray-100">
-          <h2 className="text-xl font-semibold text-gray-800 flex items-center">
-            💰 Financial Analysis & Savings
-          </h2>
-          <p className="text-sm text-gray-600 mt-1">
-            Detailed breakdown of costs, savings, and return on investment
-          </p>
-        </div>
-        <div className="p-6">
-          <SavingsCalculator
-            solarData={solarData}
-            bill={bill}
-            totalEnergyProductionPerYearKwh={totalEnergyProductionPerYearKwh}
-            numberOfPanels={numberOfPanels}
-            shadingFactor={shadingFactor}
-            tiltFactor={tiltFactor}
-            financingOption={financingOption}
-            onFinancingOptionChange={onFinancingOptionChange}
-            onPanelChange={dummyHandler}
-            onShadingChange={dummyHandler}
-            onTiltChange={dummyHandler}
-            onYearChange={dummyHandler}
-          />
+        <div className="solar-estimator-grid">
+          
+          {/* Left Column */}
+          <div className="solar-estimator-left-column">
+            <div className="solar-estimator-card" style={{ maxHeight: '500px', display: 'flex', flexDirection: 'column' }}>
+              <h2 className="solar-estimator-card-header">
+                🏠 Roof Analysis & Panel Layout
+              </h2>
+              <div style={{ flex: 1, minHeight: 0 }}>
+                <RoofVisualization
+                  latitude={fetchedSolarData.latitude}
+                  longitude={fetchedSolarData.longitude}
+                  roofSegments={fetchedSolarData.roofSegmentStats ?? []}
+                  numberOfPanels={panelCount}
+                  shadingFactor={props.shadingFactor}
+                  tiltFactor={props.tiltFactor}
+                  apiKey={process.env.NEXT_PUBLIC_GOOGLE_SOLAR_API_KEY ?? ''}
+                />
+              </div>
+            </div>
+            <div className="solar-estimator-card">
+              <h2 className="solar-estimator-card-header">
+                📈 Financial Analysis
+              </h2>
+              <ChartDisplay
+                years={savingsData.years}
+                cumulativeSavings={savingsData.cumulativeSavings}
+                cumulativeCosts={savingsData.cumulativeCosts}
+                monthlyPayments={savingsData.monthlyPayments}
+                utilityBills={savingsData.utilityBills}
+              />
+            </div>
+          </div>
+
+          {/* Right Column */}
+          <div className="solar-estimator-right-column">
+            <div className="solar-estimator-card">
+              <SavingsCalculatorSummary
+                {...summaryData}
+              />
+            </div>
+            <div className="solar-estimator-card">
+              
+              <div className="solar-estimator-tabs-container">
+                <Tabs 
+                  value={activeTab} 
+                  onChange={(_, val) => setActiveTab(val)} 
+                  aria-label="Configuration Tabs" 
+                  variant="scrollable"
+                  sx={{
+                    '& .MuiTab-root': {
+                      minWidth: 'auto',
+                      flex: 1,
+                    }
+                  }}
+                >
+                  <Tab label="System" icon={<Settings />} iconPosition="start" />
+                  <Tab label="Financial" icon={<AttachMoney />} iconPosition="start" />
+                  <Tab label="Efficiency" icon={<TrendingUp />} iconPosition="start" />
+                  <Tab label="Timeline" icon={<Timeline />} iconPosition="start" />
+                  <Tab label="Costs" icon={<Calculate />} iconPosition="start" />
+                </Tabs>
+              </div>
+              <div className="solar-estimator-tab-content">
+                
+                {activeTab === 0 && <SystemConfiguration
+                  panelCount={panelCount} panelType={panelType} inverterType={inverterType} hasBattery={hasBattery}
+                  onPanelCountChange={setPanelCount} onPanelTypeChange={setPanelType}
+                  onInverterTypeChange={setInverterType} onBatteryChange={setHasBattery}
+                  maxPanels={adjustedMaxPanels} />}
+                {activeTab === 1 && <FinancialInputs
+                  financingOption={financingOption} loanTerm={loanTerm} interestRate={interestRate} downPayment={downPayment} incentivePercentage={incentivePercentage}
+                  onFinancingOptionChange={handleFinancingOptionChange} onLoanTermChange={setLoanTerm} onInterestRateChange={setInterestRate}
+                  onDownPaymentChange={setDownPayment} onIncentivePercentageChange={setIncentivePercentage} />}
+                {activeTab === 2 && <EfficiencyFactors roofSegments={roofSegments} onShadingChange={(val) => setRoofSegments(s => s.map(seg => ({...seg, shadingFactor: val})))} onTiltChange={(val) => setRoofSegments(s => s.map(seg => ({...seg, tiltAngle: val})))} />}
+                {activeTab === 3 && <TimelineControl timelineYears={projectionYears} maxYears={40} onTimelineChange={setProjectionYears} />}
+                {activeTab === 4 && <CostFactors maintenanceCost={maintenanceCost} inflationRate={inflationRate} utilityInflationRate={utilityInflationRate} onMaintenanceCostChange={setMaintenanceCost} onInflationRateChange={setInflationRate} onUtilityInflationRateChange={setUtilityInflationRate} />}
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>

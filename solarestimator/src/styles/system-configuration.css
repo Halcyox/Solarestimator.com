@@ -1,0 +1,97 @@
+.system-config-container {
+    width: 100%;
+    padding: 1rem 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+}
+
+.system-config-section {
+    width: 100%;
+    padding: 1.5rem;
+    background-color: #f9fafb;
+    border-radius: 8px;
+    border: 1px solid #e5e7eb;
+}
+
+.system-config-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.system-config-title {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin: 0;
+}
+
+.system-config-value {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #10b981;
+}
+
+.system-config-subtitle {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.system-config-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    width: 100%;
+}
+
+.system-config-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.system-config-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 0.25rem;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.custom-slider.MuiSlider-root {
+    color: #2563eb;
+    height: 6px;
+}
+
+.custom-slider .MuiSlider-thumb {
+    width: 20px;
+    height: 20px;
+    background-color: #fff;
+    border: 2px solid currentColor;
+}
+
+.custom-slider .MuiSlider-thumb:focus,
+.custom-slider .MuiSlider-thumb:hover,
+.custom-slider .MuiSlider-thumb.Mui-active {
+    box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.16);
+}
+
+.custom-slider .MuiSlider-track {
+    height: 6px;
+}
+
+.custom-slider .MuiSlider-rail {
+    height: 6px;
+    background-color: #d1d5db;
+    opacity: 1;
+}
+
+.custom-slider .MuiSlider-markLabel {
+    color: #4b5563;
+    font-weight: 500;
+}

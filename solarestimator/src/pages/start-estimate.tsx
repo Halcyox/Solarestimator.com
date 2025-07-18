@@ -1,7 +1,6 @@
 import React from 'react';
 import { useRouter } from 'next/router';
 import Wizard from '../components/Wizard';
-import { Container } from '@mui/material'; // Assuming you might want layout consistency
 
 const StartEstimatePage: React.FC = () => {
   const router = useRouter();
@@ -16,9 +15,9 @@ const StartEstimatePage: React.FC = () => {
   }
 
   return (
-    <Container maxWidth="md" sx={{ py: { xs: 2, md: 4 } }}>
+    <div style={{ width: '100%', padding: '1rem' }}>
        <Wizard initialAddress={initialAddress} />
-    </Container>
+    </div>
   );
 };
 

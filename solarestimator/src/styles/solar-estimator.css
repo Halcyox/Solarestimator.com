@@ -1,0 +1,91 @@
+/* SolarEstimator Component Styles - Refined Full Width */
+
+.solar-estimator {
+  width: 100%;
+  padding: 1rem;
+  background-color: #f9fafb; /* Light gray background */
+}
+
+.solar-estimator-container {
+  width: 100%;
+  max-width: 100%; /* Ensure it can go full width */
+  margin: 0 auto;
+}
+
+.solar-estimator-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.solar-estimator-title {
+  font-size: 2.25rem;
+  font-weight: bold;
+  color: #1f2937;
+  margin-bottom: 0.5rem;
+}
+
+.solar-estimator-subtitle {
+  color: #6b7280;
+  font-size: 1.125rem;
+  max-width: 60ch;
+  margin: 0 auto;
+}
+
+.solar-estimator-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2rem;
+}
+
+@media (min-width: 1024px) {
+  .solar-estimator-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.solar-estimator-left-column,
+.solar-estimator-right-column {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.solar-estimator-card {
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+  background: white;
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  overflow: hidden; /* Prevent content from breaking out */
+}
+
+.solar-estimator-card-header {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 1.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.solar-estimator-tabs-container {
+  border-bottom: 1px solid #e5e7eb;
+  margin-bottom: 1.5rem;
+}
+
+/* Ensure tabs are scrollable on small screens but don't force width */
+.solar-estimator .MuiTabs-root {
+  width: 100%;
+}
+
+.solar-estimator .MuiTab-root {
+  text-transform: none; /* Keep original casing */
+  font-weight: 500;
+  font-size: 0.9rem;
+  min-width: 100px; /* Give tabs enough space */
+  flex-grow: 1; /* Allow tabs to share space */
+}
+
+.solar-estimator-tab-content {
+  padding: 0.5rem 0;
+} 

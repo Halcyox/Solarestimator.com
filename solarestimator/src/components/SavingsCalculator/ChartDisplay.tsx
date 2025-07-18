@@ -450,7 +450,7 @@ const ChartDisplay: React.FC<ChartDisplayProps> = ({
       
       {/* Chart Container */}
       <Box sx={{ 
-        height: '450px', 
+        height: { xs: '350px', md: '450px' }, 
         width: '100%',
         background: 'white',
         borderRadius: 2,

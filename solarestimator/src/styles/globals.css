@@ -571,3 +571,15 @@ a:focus, button:focus, input:focus {
   @apply text-2xl font-bold;
   color: var(--accent-color, #0070f3);
 }
+
+.solar-chatbot-container {
+  isolation: isolate;
+  contain: layout style paint;
+  position: relative;
+}
+
+.solar-chatbot-container form {
+  /* Ensure forms within chatbot don't affect parent */
+  isolation: isolate;
+  contain: layout style;
+}

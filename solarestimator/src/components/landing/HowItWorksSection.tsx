@@ -23,7 +23,7 @@ export const HowItWorksSection: React.FC = () => {
 
   return (
     <section className="bg-white py-20 md:py-28">
-      <div className="container mx-auto px-4">
+      <div className="w-full px-4 sm:px-6 lg:px-8">
         <h2 className="font-heading text-3xl md:text-4xl font-semibold text-center mb-16 md:mb-20 text-gray-800">
           Your <span className="text-orange-500">AI-Powered</span> Solar Estimate in 3 Simple Steps
         </h2>

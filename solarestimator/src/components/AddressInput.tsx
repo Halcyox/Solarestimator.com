@@ -49,10 +49,10 @@ interface PlaceSuggestion {
  */
 export interface AddressInputProps {
   /**
-   * Optional callback function called specifically when an address is selected from suggestions.
-   * It receives the selected address string or null if cleared.
+   * Callback function that is called when a valid address is selected.
+   * It receives the full address string.
    */
-  onAddressSelect?(selectedAddress: string | null): void;
+  onChange(selectedAddress: string | null): void;
   /**
    * Optional initial address value.
    */
@@ -79,14 +79,14 @@ export interface AddressInputProps {
  * @example
  * ```tsx
  * <AddressInput 
- *   onAddressSelect={(address) => {
+ *   onChange={(address) => {
  *     console.log('Selected address:', address);
  *   }}
  *   initialAddress="123 Main St"
  * />
  * ```
  */
-export const AddressInput = ({ onAddressSelect, initialAddress = '' }: AddressInputProps): JSX.Element => {
+export const AddressInput = ({ onChange, initialAddress = '' }: AddressInputProps): JSX.Element => {
   /**
    * State variable to store the currently selected address internally for validation.
    */
@@ -136,15 +136,15 @@ export const AddressInput = ({ onAddressSelect, initialAddress = '' }: AddressIn
         console.log(`Geocoded Address: ${address}, Lat: ${lat}, Lng: ${lng}`);
         setSelectedAddressValidated(true);
         // Only notify parent if geocoding was successful
-        if (onAddressSelect) {
-          onAddressSelect(address);
+        if (onChange) {
+          onChange(address);
         }
       }
     } catch (error) {
       console.error('Error geocoding address:', error);
       // Address is invalid, notify parent with null
-      if (onAddressSelect) {
-        onAddressSelect(null);
+      if (onChange) {
+        onChange(null);
       }
       // Optionally: show an error message to the user here
     }
@@ -154,8 +154,8 @@ export const AddressInput = ({ onAddressSelect, initialAddress = '' }: AddressIn
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
       setValue(e.target.value);
       setSelectedAddressValidated(false);
-      if (onAddressSelect) {
-          onAddressSelect(null); // Address is not confirmed from dropdown
+      if (onChange) {
+          onChange(null); // Address is not confirmed from dropdown
       }
   };
 

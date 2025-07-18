@@ -51,10 +51,9 @@ const ResultsStep: React.FC<ResultsStepProps> = ({ prevStep, data, updateData })
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto animate-fadeIn">
+    <div className="w-full animate-fadeIn">
       <SolarEstimator
         solarData={data.solarData}
-        totalEnergyProductionPerYearKwh={data.totalEnergyProductionPerYearKwh}
         bill={data.bill}
         numberOfPanels={data.numberOfPanels}
         shadingFactor={data.shadingFactor}

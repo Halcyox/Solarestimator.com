@@ -18,7 +18,7 @@ export const BenefitsSection: React.FC = () => {
   return (
     // Assuming HowItWorks was white, alternate background
     <section className="bg-gray-50 py-20 md:py-28">
-      <div className="container mx-auto px-4">
+      <div className="w-full px-4 sm:px-6 lg:px-8">
         <div className="grid md:grid-cols-12 gap-12 lg:gap-16 items-center">
           {/* Text Column */}
           <div className="md:col-span-7 lg:col-span-6 order-2 md:order-1">
